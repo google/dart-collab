@@ -1,0 +1,55 @@
+body {
+  background: #e0e0e0;
+  font-family: Arial, Helvetica;
+}
+
+h1 {
+  margin: 24px;
+}
+
+#container {
+  width: 600px;
+  margin: auto;
+}
+
+#editor {
+  width: 100%;
+  height: 400px;
+  box-sizing: border-box;
+  background: #eee;
+  color: 222;
+  font-size: 24px;
+  padding: 8px;
+}
+
+#editor:focus {
+  outline: solid 1px #abf;
+}
+
+#toolbar {
+  background: #444;
+  padding: 6px;
+  height: 20px;
+  border-radius: 4px 4px 0 0;
+}
+
+#status {
+  color: #ddd;
+  display: inline-block;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 10px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, .8);
+}
+
+#status.disconnected {
+  background: red;
+}
+
+#status.connecting {
+  background: #fa0;
+}
+
+#status.connected {
+  background: #0a0;
+}
