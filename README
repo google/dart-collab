@@ -1,0 +1,10 @@
+An operational transform library for Dart.
+
+dart-collab allows multiple clients to edit a single document concurrently. The library provides
+message, operation, document, server and client classes used to built a collaborative editing
+system.
+
+dart-collab is in a very early stage and is not documented or tested. There are rough edges and
+many changes are coming soon. Currently only text documents are supported, but the plan is to add
+arbitrary JSON-like document support soon, as well as the ability for developers to register their
+own operations and transform functions.
