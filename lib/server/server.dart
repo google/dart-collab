@@ -1,27 +1,27 @@
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#library('server');
+library server;
 
-#import('dart:io');
-#import('dart:isolate');
+import 'dart:io';
+import 'dart:isolate';
 
-#import('../collab.dart');
-#import('../utils.dart');
+import 'package:dart-collab/collab.dart';
+import 'package:dart-collab/utils.dart';
 
-#source('../transport.dart');
-#source('transport.dart');
+part 'package:dart-collab/transport.dart';
+part 'transport.dart';
 
 typedef void RequestHandler(HttpRequest request, HttpResponse response);
 
@@ -33,15 +33,15 @@ class CollabServer {
   // docId -> clientId
   final Map<String, Set<String>> _listeners;
   final Queue<Message> _queue;
-  
+
   final Transport _transport;
-    
-  CollabServer(Transport this._transport) 
+
+  CollabServer(Transport this._transport)
     : _connections = new Map<String, Connection>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
       _queue = new Queue<Message>() {
-        
+
     _transport.onOpen = (Connection conn) {
       String clientId = randomId();
       _connections[clientId] = conn;
@@ -58,28 +58,28 @@ class CollabServer {
       conn.onMessage = (Message message) {
         _enqueue(message);
       };
-      
+
       ClientIdMessage message = new ClientIdMessage(SERVER_ID, clientId);
       conn.send(message);
     };
   }
-    
+
   void _enqueue(Message message) {
     _queue.add(message);
     _processDeferred();
   }
-  
+
   void _processDeferred() {
     new Timer(0, (timer) => _process());
   }
-  
+
   void _process() {
     if (!_queue.isEmpty()) {
       _dispatch(_queue.removeFirst());
       _processDeferred();
     }
   }
-  
+
   void _dispatch(Message message) {
     String clientId = message.senderId;
     print("dispatch: $message");
@@ -124,7 +124,7 @@ class CollabServer {
     }
     doc.version++;
     transformed.sequence = doc.version;
-    
+
     transformed.apply(doc);
     doc.log.add(transformed);
     _broadcast(transformed);

@@ -1,11 +1,13 @@
+part of collab;
+
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,22 +20,22 @@ typedef Operation Transform(Operation op1, Operation op2);
 /*
  * Operations modify a document.
  */
-class Operation extends Message {
-  
+abstract class Operation extends Message {
+
   static Map<String, Map<String, Transform>> _getTransforms() => {
     "text": {"text": TextOperation.transformInsert},
   };
-  
+
   /*
    * Transform [Operation] [op] by [by].
-   * 
+   *
    * It's important that these sequences of operation result in the same
    * changes:
-   * 
+   *
    * op1.apply(doc);
    * var op2t = Operation.transform(op2, op1);
    * op2t.apply(doc);
-   * 
+   *
    * op2.apply(doc);
    * var op1t = Operation.transform(op1, op2);
    * op1t.apply(doc);
@@ -48,24 +50,24 @@ class Operation extends Message {
     }
     return t(op, by);
   }
-  
+
   final String docId;
   // set when op created to the doc version of the client
   final int docVersion;
   // set when an operation is applied by the server
   int sequence;
-  
-  Operation(String type, String senderId, this.docId, this.docVersion) 
+
+  Operation(String type, String senderId, this.docId, this.docVersion)
     : super(type, senderId);
-  
-  Operation.fromMap(Map<String, Object> map) 
+
+  Operation.fromMap(Map<String, Object> map)
     : super.fromMap(map),
       docId = map['docId'],
       docVersion = map['docVersion'],
       sequence = map['sequence'];
-  
+
   Map<String, Object> toMap([values]) => super.toMap(mergeMaps(values, {
       'docId': docId, 'docVersion': docVersion, 'sequence': sequence}));
-  
+
   abstract void apply(Document document);
 }

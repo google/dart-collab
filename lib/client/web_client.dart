@@ -1,33 +1,33 @@
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#library('web_client');
+library web_client;
 
-#import('dart:html', prefix: 'html');
-#import('../collab.dart');
+import 'dart:html' as html;
+import 'package:dart-collab/collab.dart';
 
-#source('../transport.dart');
-#source('transport.dart');
+part '../transport.dart';
+part 'transport.dart';
 
 
 typedef void StatusHandler(int status);
-int DISCONNECTED = 0;
-int CONNECTED = 1;
-int CONNECTING = 2;
-int ERROR = 3;
+const int DISCONNECTED = 0;
+const int CONNECTED = 1;
+const int CONNECTING = 2;
+const int ERROR = 3;
 
-class CollabWebClient {  
+class CollabWebClient {
 //  html.WebSocket _socket;
   String _clientId;
   Document _document;
@@ -36,26 +36,26 @@ class CollabWebClient {
 
   // Operations that have not been sent to the server yet
   List<Operation> _queue;
-  
+
   // The outstanding operation, if any.
   Operation _pending;
-  
+
   // Operations received while the last sent operation is still pending.
   // These operations need to be transformed by the pending operation
-  // if their sequence number is less than the pending operation. 
+  // if their sequence number is less than the pending operation.
   List<Operation> _incoming;
-  
+
   final Transport _transport;
   Connection _conn;
-  
+
   CollabWebClient(this._transport, Document this._document) {
     _pendingRequests = new Map<String, Completer>();
     _queue = new List<Operation>();
     _incoming = new List<Operation>();
-    
+
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(DISCONNECTED);
-    
+
     _transport.onOpen = (Connection conn) {
       _onStatusChange(CONNECTING);
       print("opened");
@@ -64,24 +64,24 @@ class CollabWebClient {
         _onStatusChange(ERROR);
         print("error: $error");
       };
-      
+
       conn.onClosed = () {
         _onStatusChange(DISCONNECTED);
         print("closed");
       };
-      
+
       conn.onMessage = (Message message) {
         _dispatch(message);
       };
     };
   }
-  
-  Document get document() => _document;
-  
-  String get id() => _clientId;
-  
-  int get docVersion() => _document.version;
-  
+
+  Document get document => _document;
+
+  String get id => _clientId;
+
+  int get docVersion => _document.version;
+
   // TODO: change away from send, since only the client can send
   // might need a separate envelope from message
   void queue(Operation operation) {
@@ -93,19 +93,19 @@ class CollabWebClient {
       _queue.add(operation);
     }
   }
-  
+
   void send(Message message) {
     _conn.send(message);
   }
-  
+
   void addStatusHandler(StatusHandler h) {
     _statusHandlers.add(h);
   }
-  
+
   void _onStatusChange(int status) {
     _statusHandlers.forEach((h) { h(status); });
   }
-  
+
   void _dispatch(Message message) {
     if (message.type == "clientId") {
       _onClientId(message);
@@ -151,7 +151,7 @@ class CollabWebClient {
       _onReply(message);
     }
   }
-  
+
   void _apply(Operation op) {
     op.apply(_document);
     _document.log.add(op);
@@ -159,7 +159,7 @@ class CollabWebClient {
       _document.version = op.sequence;
     }
   }
-  
+
   /**
    * Handles a reply message, calling the correct callback.
    */
@@ -175,7 +175,7 @@ class CollabWebClient {
       completer.complete(response);
     }
   }
-  
+
   void _onClientId(ClientIdMessage message) {
     _clientId = message.clientId;
     print("clientId: $_clientId");
@@ -184,7 +184,7 @@ class CollabWebClient {
     send(cm);
     _onStatusChange(CONNECTED);
   }
-  
+
   void _onSnapshot(SnapshotMessage message) {
     _document.modify(0, document.text, message.text);
     _document.version = message.version;

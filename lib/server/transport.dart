@@ -1,11 +1,13 @@
+part of server;
+
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,43 +19,45 @@
  * Message [Transport] implemented with dart:io WebSocket
  */
 class WebSocketTransport implements Transport {
-  final html.WebSocket _socket;
-  _WebSocketConnection _conn;
-  
+  final WebSocketHandler _wsHandler;
+
   var onOpen;
-  
-  WebSocketTransport(String host)
-    : _socket = new html.WebSocket(host) {
-    _conn = new _WebSocketConnection(_socket);
-    _socket.on.open.add((e) {
+
+  WebSocketTransport()
+    : _wsHandler = new WebSocketHandler() {
+    _wsHandler.onOpen = (WebSocketConnection wsConn) {
+      _WebSocketConnection conn = new _WebSocketConnection(wsConn);
       if (onOpen != null) {
-        onOpen(_conn);
+        onOpen(conn);
       }
-    });
-    _socket.on.message.add((html.MessageEvent event) {
-      String json = event.data;
-      print(json);
-      Message message = new Message.parse(json);
-      _conn.onMessage(message);
-    });
-    _socket.on.error.add((e) => _conn.onError(e));
-    _socket.on.close.add((e) => _conn.onClosed());
+    };
   }
+
+  RequestHandler get handler => _wsHandler.onRequest;
 }
 
 class _WebSocketConnection implements Connection {
-  final html.WebSocket _socket;
+  final WebSocketConnection _conn;
+
   var onMessage;
   var onClosed;
   var onError;
-  
-  _WebSocketConnection(this._socket);
-  
+
+  _WebSocketConnection(this._conn) {
+    _conn.onMessage = (json) {
+      Message message = new Message.parse(json);
+      onMessage(message);
+    };
+//    _conn.onError = (e) => onError(e);
+    _conn.onClosed = (s, r) => onClosed();
+  }
+
   void send(Message message) {
-    _socket.send(message.json);
+    _conn.send(message.json);
   }
-  
+
   void close() {
-    _socket.close();
+    _conn.close();
   }
+
 }

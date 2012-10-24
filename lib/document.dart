@@ -1,11 +1,13 @@
+part of collab;
+
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +20,9 @@ class DocumentChangeEvent {
   final String deleted;
   final String inserted;
   final String text;
-  
+
   DocumentChangeEvent(this.document, this.position, this.deleted, this.inserted, this.text);
-  
+
   String toString() => "DocumentChangeEvent {$position, $deleted, $inserted}";
 }
 
@@ -28,7 +30,7 @@ typedef void DocumentChangeHandler(DocumentChangeEvent e);
 
 /*
  * A simple text-based document with a modification log.
- * 
+ *
  * TODO: rename to TextDocument
  */
 class Document {
@@ -37,22 +39,22 @@ class Document {
   final List<Operation> log;
   String _text;
   int version;
-  
+
   Document(this.id)
     : _handlers = new List<DocumentChangeHandler>(),
       log = new List(), _text = "", version = 0;
-  
+
   void addChangeHandler(DocumentChangeHandler handler) {
     print("addChangeHandler");
     _handlers.add(handler);
   }
-  
+
   void _fireUpdate(DocumentChangeEvent event) {
     print("fireUpdate");
     _handlers.forEach((handler) { handler(event); });
   }
-  
-  String get text() => _text;
+
+  String get text => _text;
 
   void modify(int position, String deleted, String inserted) {
     if ((position < 0) || (position > _text.length)) {
@@ -66,15 +68,15 @@ class Document {
     DocumentChangeEvent event = new DocumentChangeEvent(this, position, deleted, inserted, _text);
     _fireUpdate(event);
   }
-  
+
 //  void set text(String text) {
 //    assert(text != null);
 //    _text = text;
 //    print("doc id:$id text: $_text");
 //    _fireUpdate();
 //  }
-  
-  String toString() => "Document {id: $id, text: $text}";  
+
+  String toString() => "Document {id: $id, text: $text}";
 }
 
 
@@ -94,12 +96,12 @@ class CreatedMessage extends Message {
   String docId;
   CreatedMessage(this.docId, [String replyTo])
     : super("created", SERVER_ID, replyTo);
-      
-  CreatedMessage.fromMap(Map<String, Object> map) 
+
+  CreatedMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
     docId = map['docId'];
-  
-  toMap([values]) => super.toMap(mergeMaps(values, {'docId': docId}));  
+
+  toMap([values]) => super.toMap(mergeMaps(values, {'docId': docId}));
 }
 
 /*
@@ -107,13 +109,13 @@ class CreatedMessage extends Message {
  */
 class OpenMessage extends Message {
   final String docId;
-  
+
   OpenMessage(this.docId, String senderId) : super("open", senderId);
-  
-  OpenMessage.fromMap(Map<String, Object> map) 
+
+  OpenMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
       docId = map['docId'];
-  
+
   toMap([values]) => super.toMap(mergeMaps(values, {'docId': docId}));
 }
 
@@ -122,13 +124,13 @@ class OpenMessage extends Message {
  */
 class CloseMessage extends Message {
   final String docId;
-  
+
   CloseMessage(String senderId, this.docId) : super("close", senderId);
-  
-  CloseMessage.fromMap(Map<String, Object> map) 
+
+  CloseMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
       docId = map['docId'];
-  
+
   toMap([values]) => super.toMap(mergeMaps(values, {'docId': docId}));
 }
 
@@ -139,15 +141,15 @@ class SnapshotMessage extends Message {
   final String docId;
   final String text;
   final int version;
-  
+
   SnapshotMessage(String senderId, this.docId, this.text, this.version) : super("snapshot", senderId);
-  
-  SnapshotMessage.fromMap(Map<String, Object> map) 
+
+  SnapshotMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
       docId = map['docId'],
       text = map['text'],
       version = map['version'];
-  
-  toMap([values]) => super.toMap(mergeMaps(values, 
+
+  toMap([values]) => super.toMap(mergeMaps(values,
       {'docId': docId, 'text': text, 'version': version}));
 }

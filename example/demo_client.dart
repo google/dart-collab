@@ -1,23 +1,23 @@
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#library('demo_client');
+library demo_client;
 
-#import('dart:html');
-#import('../src/client/web_client.dart');
-#import('../src/client/web_utils.dart');
-#import('../src/collab.dart', prefix: 'collab');
+import 'dart:html';
+import 'package:dart-collab/client/web_client.dart';
+import 'package:dart-collab/client/web_utils.dart';
+import 'package:dart-collab/collab.dart' as collab;
 
 TextAreaElement editor;
 collab.Document doc;
@@ -56,5 +56,6 @@ void onStatusChange(int status) {
       statusDiv.classes.remove("connecting");
       statusDiv.classes.remove("disconnected");
       statusDiv.text = "connected";
+      break;
   }
 }

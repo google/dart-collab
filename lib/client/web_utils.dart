@@ -1,22 +1,23 @@
 //  Copyright 2011 Google Inc. All Rights Reserved.
-//  
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
-//  
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS,
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#library('web_utils');
+library web_utils;
 
-#import('dart:html');
-#import('../collab.dart', prefix: 'collab');
-#import('web_client.dart');
+import 'dart:html';
+import 'dart:math';
+import 'package:dart-collab/collab.dart' as collab;
+import 'web_client.dart';
 
 class TextChangeEvent {
   final Element target;
@@ -24,9 +25,9 @@ class TextChangeEvent {
   final int position;
   final String deleted;
   final String inserted;
-  
+
   TextChangeEvent(this.target, this.text, this.position, this.deleted, this.inserted);
-  
+
   String toString() => "TextChangeEvent {text: $text, position: $position, deleted: $deleted, inserted: $inserted}";
 }
 
@@ -36,15 +37,15 @@ class TextChangeListener {
   final Element _element;
   final List<TextChangeHandler> _handlers;
   String _oldValue;
-  
-  TextChangeListener(this._element) 
+
+  TextChangeListener(this._element)
     : _handlers = new List<TextChangeHandler>() {
     _element.on.keyUp.add((KeyboardEvent e) {
-      int pos = _element.dynamic.selectionStart;
+      int pos = (_element as Dynamic).selectionStart;
       _onChange();
     });
     _element.on.change.add((Event e) {
-      int pos = _element.dynamic.selectionStart;
+      int pos = (_element as Dynamic).selectionStart;
       _onChange();
     });
   }
@@ -54,9 +55,9 @@ class TextChangeListener {
   }
 
   void reset() {
-    _oldValue = _element.dynamic.value;
+    _oldValue = (_element as Dynamic).value;
   }
-  
+
   /*
    * This algorithm works because there can only be one contiguous change
    * as a result of typing or pasting. If a paste contains a common substring
@@ -65,7 +66,7 @@ class TextChangeListener {
    * preserves user intention when used in an OT system.
    */
   void _onChange() {
-    String newValue = _element.dynamic.value;
+    String newValue = (_element as Dynamic).value;
 
     if (newValue == _oldValue) {
       return;
@@ -75,7 +76,7 @@ class TextChangeListener {
     int end = 0;
     int oldLength = _oldValue.length;
     int newLength = newValue.length;
-    
+
     while ((start < oldLength) && (start < newLength)
         && (_oldValue[start] == newValue[start])) {
       start++;
@@ -84,17 +85,17 @@ class TextChangeListener {
         && (_oldValue[oldLength - end - 1] == newValue[newLength - end - 1])) {
       end++;
     }
-    
+
     String deleted = _oldValue.substring(start, oldLength - end);
     String inserted = newValue.substring(start, newLength - end);
     _oldValue = newValue;
     _fire(newValue, start, deleted, inserted);
   }
-  
+
   void _fire(String text, int position, String deleted, String inserted) {
     TextChangeEvent event = new TextChangeEvent(_element, text, position, deleted, inserted);
     _handlers.forEach((handler) { handler(event); });
-  }  
+  }
 }
 
 void makeEditable(Element element, CollabWebClient client) {
@@ -102,26 +103,26 @@ void makeEditable(Element element, CollabWebClient client) {
   TextChangeListener listener = new TextChangeListener(element);
 
   bool listen = true;
-  listener.addChangeHandler((TextChangeEvent event) {    
+  listener.addChangeHandler((TextChangeEvent event) {
     print(event);
     if (listen) {
       listen = false;
-      collab.TextOperation op = 
+      collab.TextOperation op =
           new collab.TextOperation(client.id, "test", client.docVersion, event.position, event.deleted, event.inserted);
       client.queue(op);
       listen = true;
     }
   });
-  
+
   client.document.addChangeHandler((collab.DocumentChangeEvent event) {
     if (listen) {
       listen = false;
-      int cursorPos = element.dynamic.selectionStart;
-      element.dynamic.value = event.text;
+      int cursorPos = (element as Dynamic).selectionStart;
+      (element as Dynamic).value = event.text;
       if (event.position < cursorPos) {
-        cursorPos = Math.max(0, cursorPos + event.inserted.length - event.deleted.length);
+        cursorPos = max(0, cursorPos + event.inserted.length - event.deleted.length);
       }
-      element.dynamic.setSelectionRange(cursorPos, cursorPos);
+      (element as Dynamic).setSelectionRange(cursorPos, cursorPos);
       listener.reset();
       listen = true;
     }
