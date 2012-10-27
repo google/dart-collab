@@ -30,8 +30,9 @@ void main() {
   doc = new collab.Document("test");
   String host = window.location.hostname;
   print("host: $host");
-  Transport transport = new WebSocketTransport("ws://$host:8080/connect");
-  CollabWebClient client = new CollabWebClient(transport, doc);
+  
+  var transport = new WebSocketTransport("ws://$host:8080/connect");
+  var client = new CollabWebClient(transport, doc);
   client.addStatusHandler(onStatusChange);
   makeEditable(editor, client);
 }
