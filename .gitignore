@@ -1,5 +1,5 @@
 *.dart.js
 *.dart.js.map
-packages/
+packages
 pubspec.lock
-
+.project

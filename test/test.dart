@@ -13,8 +13,8 @@
 //  limitations under the License.
 
 import 'package:unittest/unittest.dart';
-import 'package:dart-collab/collab.dart';
-import 'package:dart-collab/server/server.dart';
+import 'package:collab/collab.dart';
+import 'package:collab/server/server.dart';
 
 // TODO: Really need a client/server integration test.
 // Abstracting out Transport is the first step.

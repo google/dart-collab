@@ -14,9 +14,9 @@
 
 import 'dart:io';
 import 'dart:isolate';
-import 'package:dart-collab/collab.dart';
-import 'package:dart-collab/server/server.dart';
-import 'package:dart-collab/utils.dart';
+import 'package:collab/collab.dart';
+import 'package:collab/server/server.dart';
+import 'package:collab/utils.dart';
 
 void main() {
   List<String> argv = (new Options()).arguments;
@@ -51,10 +51,12 @@ Map<String, String> contentTypes = const {
 /// Very simple async static file server. Possibly insecure!
 void serveFile(HttpRequest req, HttpResponse resp) {
   String path = (req.path.endsWith('/')) ? ".${req.path}index.html" : ".${req.path}";
-  print("serving $path");
+  var cwd = new Directory.current().path;
+  print("serving $path from $cwd");
 
   File file = new File(path);
   file.exists().then((bool exists) {
+//    print("$path ${(exists ? 'exists' : 'does not exist')}");
     if (exists) {
       file.readAsText().then((String text) {
         if (text == null) {

@@ -1,4 +1,4 @@
-name: dart-collab
+name: collab
 description: A library for building real-time collaborative apps using operational tranforms.
 dependencies:
   unittest: { sdk: unittest }

@@ -16,7 +16,7 @@ library web_utils;
 
 import 'dart:html';
 import 'dart:math';
-import 'package:dart-collab/collab.dart' as collab;
+import 'package:collab/collab.dart' as collab;
 import 'web_client.dart';
 
 class TextChangeEvent {
@@ -41,11 +41,11 @@ class TextChangeListener {
   TextChangeListener(this._element)
     : _handlers = new List<TextChangeHandler>() {
     _element.on.keyUp.add((KeyboardEvent e) {
-      int pos = (_element as Dynamic).selectionStart;
+      int pos = (_element as dynamic).selectionStart;
       _onChange();
     });
     _element.on.change.add((Event e) {
-      int pos = (_element as Dynamic).selectionStart;
+      int pos = (_element as dynamic).selectionStart;
       _onChange();
     });
   }
@@ -55,7 +55,7 @@ class TextChangeListener {
   }
 
   void reset() {
-    _oldValue = (_element as Dynamic).value;
+    _oldValue = (_element as dynamic).value;
   }
 
   /*
@@ -66,7 +66,7 @@ class TextChangeListener {
    * preserves user intention when used in an OT system.
    */
   void _onChange() {
-    String newValue = (_element as Dynamic).value;
+    String newValue = (_element as dynamic).value;
 
     if (newValue == _oldValue) {
       return;
@@ -117,12 +117,12 @@ void makeEditable(Element element, CollabWebClient client) {
   client.document.addChangeHandler((collab.DocumentChangeEvent event) {
     if (listen) {
       listen = false;
-      int cursorPos = (element as Dynamic).selectionStart;
-      (element as Dynamic).value = event.text;
+      int cursorPos = (element as dynamic).selectionStart;
+      (element as dynamic).value = event.text;
       if (event.position < cursorPos) {
         cursorPos = max(0, cursorPos + event.inserted.length - event.deleted.length);
       }
-      (element as Dynamic).setSelectionRange(cursorPos, cursorPos);
+      (element as dynamic).setSelectionRange(cursorPos, cursorPos);
       listener.reset();
       listen = true;
     }

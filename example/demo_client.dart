@@ -15,9 +15,9 @@
 library demo_client;
 
 import 'dart:html';
-import 'package:dart-collab/client/web_client.dart';
-import 'package:dart-collab/client/web_utils.dart';
-import 'package:dart-collab/collab.dart' as collab;
+import 'package:collab/client/web_client.dart';
+import 'package:collab/client/web_utils.dart';
+import 'package:collab/collab.dart' as collab;
 
 TextAreaElement editor;
 collab.Document doc;
