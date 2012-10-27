@@ -74,7 +74,7 @@ class CollabServer {
   }
 
   void _process() {
-    if (!_queue.isEmpty()) {
+    if (!_queue.isEmpty) {
       _dispatch(_queue.removeFirst());
       _processDeferred();
     }

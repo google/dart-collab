@@ -71,4 +71,4 @@ void serveFile(HttpRequest req, HttpResponse resp) {
   });
 }
 
-String getContentType(File file) => contentTypes[file.name.split('.').last()];
+String getContentType(File file) => contentTypes[file.name.split('.').last];
