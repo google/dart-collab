@@ -1,0 +1,4 @@
+name: collab
+description: An operational transform library.
+dependencies:
+  logging: { sdk: logging }

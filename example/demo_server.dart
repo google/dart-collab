@@ -14,9 +14,9 @@
 
 import 'dart:io';
 import 'dart:isolate';
-import 'package:dart-collab/collab.dart';
-import 'package:dart-collab/server/server.dart';
-import 'package:dart-collab/utils.dart';
+import 'package:collab/collab.dart';
+import 'package:collab/server/server.dart';
+import 'package:collab/utils.dart';
 
 void main() {
   List<String> argv = (new Options()).arguments;
@@ -71,4 +71,4 @@ void serveFile(HttpRequest req, HttpResponse resp) {
   });
 }
 
-String getContentType(File file) => contentTypes[file.name.split('.').last()];
+String getContentType(File file) => contentTypes[file.name.split('.').last];

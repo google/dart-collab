@@ -15,9 +15,9 @@
 library demo_client;
 
 import 'dart:html';
-import 'package:dart-collab/client/web_client.dart';
-import 'package:dart-collab/client/web_utils.dart';
-import 'package:dart-collab/collab.dart' as collab;
+import 'package:collab/client/web_client.dart';
+import 'package:collab/client/web_utils.dart';
+import 'package:collab/collab.dart' as collab;
 
 TextAreaElement editor;
 collab.Document doc;
@@ -30,8 +30,9 @@ void main() {
   doc = new collab.Document("test");
   String host = window.location.hostname;
   print("host: $host");
-  Transport transport = new WebSocketTransport("ws://$host:8080/connect");
-  CollabWebClient client = new CollabWebClient(transport, doc);
+  
+  var transport = new WebSocketTransport("ws://$host:8080/connect");
+  var client = new CollabWebClient(transport, doc);
   client.addStatusHandler(onStatusChange);
   makeEditable(editor, client);
 }
