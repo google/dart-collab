@@ -130,9 +130,15 @@ class CollabWebClient {
           _incoming.removeRange(_incoming.indexOf(i), 1);
         });
         _pending.sequence = op.sequence;
-        _pending = null;
         if (op.sequence > _document.version) {
           _document.version= op.sequence;
+        } // else?
+        _pending = null;
+        if (!_queue.isEmpty) {
+          _queue.forEach((o) { o.docVersion = op.sequence; });
+          var next = _queue.removeAt(0);
+          _pending = next;
+          send(next);
         }
       } else {
         // transform by pending?

@@ -58,7 +58,7 @@ class Document {
 
   void modify(int position, String deleted, String inserted) {
     if ((position < 0) || (position > _text.length)) {
-      throw "illegal position: $position, ${_text.length}";
+      throw "illegal position: $position, ${_text.length} text: $_text";
     }
     StringBuffer sb = new StringBuffer();
     sb.add(_text.substring(0, position));

@@ -118,6 +118,7 @@ class CollabServer {
     for (int i = doc.log.length - 1; i >= 0; i--) {
       Operation appliedOp = doc.log[i];
       if (appliedOp.sequence > op.docVersion) {
+//        print("transforming appliedOp.sequence: ${appliedOp.sequence} op.docVersion: ${op.docVersion}");
         transformed = Operation.transform(transformed, appliedOp);
       }
     }
