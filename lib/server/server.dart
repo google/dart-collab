@@ -20,7 +20,6 @@ import 'dart:isolate';
 import 'package:collab/collab.dart';
 import 'package:collab/utils.dart';
 
-part 'package:collab/transport.dart';
 part 'transport.dart';
 
 typedef void RequestHandler(HttpRequest request, HttpResponse response);

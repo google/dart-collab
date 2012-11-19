@@ -17,7 +17,6 @@ library web_client;
 import 'dart:html' as html;
 import 'package:collab/collab.dart';
 
-part '../transport.dart';
 part 'transport.dart';
 
 

@@ -69,5 +69,5 @@ abstract class Operation extends Message {
   Map<String, Object> toMap([values]) => super.toMap(mergeMaps(values, {
       'docId': docId, 'docVersion': docVersion, 'sequence': sequence}));
 
-  abstract void apply(Document document);
+  void apply(Document document);
 }

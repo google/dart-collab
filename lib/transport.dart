@@ -1,5 +1,3 @@
-//part of web_client;
-
 //  Copyright 2011 Google Inc. All Rights Reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +12,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+part of collab;
 
-interface Transport {
+abstract class Transport {
   void set onOpen(void callback(Connection connection));
 }
 
-interface Connection {
+abstract class Connection {
   void set onMessage(void callback(Message message));
   void set onClosed(void callback());
   void set onError(void callback(e));

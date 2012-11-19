@@ -23,3 +23,4 @@ part 'messages.dart';
 part 'document.dart';
 part 'operation.dart';
 part 'text.dart';
+part 'transport.dart';

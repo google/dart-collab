@@ -13,6 +13,7 @@
 //  limitations under the License.
 
 import 'package:unittest/unittest.dart';
+import 'package:unittest/mock.dart';
 import 'package:collab/collab.dart';
 import 'package:collab/server/server.dart';
 
