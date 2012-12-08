@@ -55,10 +55,10 @@ void serveFile(HttpRequest req, HttpResponse resp) {
   print("serving $path from $cwd");
 
   File file = new File(path);
-  file.exists().then((bool exists) {
+  file.exists().then((exists) {
 //    print("$path ${(exists ? 'exists' : 'does not exist')}");
     if (exists) {
-      file.readAsText().then((String text) {
+      file.readAsString().then((text) {
         if (text == null) {
           print("$path is empty?");
         }

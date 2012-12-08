@@ -30,7 +30,7 @@ class ClientIdMessage extends Message {
     clientId = map['clientId'];
 
   toMap([values]) => super.toMap(mergeMaps(values, {'clientId': clientId}));
-  
+
   String toString() => "ClientIdMessage: $clientId";
 }
 
