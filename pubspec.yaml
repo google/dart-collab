@@ -1,5 +1,5 @@
 name: collab
 description: A library for building real-time collaborative apps using operational tranforms.
 dependencies:
-  unittest: { sdk: unittest }
-  logging: { sdk: logging }
+  unittest: any
+  logging: any
