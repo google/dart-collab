@@ -40,11 +40,11 @@ class TextChangeListener {
 
   TextChangeListener(this._element)
     : _handlers = new List<TextChangeHandler>() {
-    _element.on.keyUp.add((KeyboardEvent e) {
+    _element.onKeyUp.listen((KeyboardEvent e) {
       int pos = (_element as dynamic).selectionStart;
       _onChange();
     });
-    _element.on.change.add((Event e) {
+    _element.onChange.listen((Event e) {
       int pos = (_element as dynamic).selectionStart;
       _onChange();
     });
