@@ -23,7 +23,7 @@ final Random _random = new Random();
 String randomId() {
   StringBuffer sb = new StringBuffer();
   for (int i = 0; i < 12; i++) {
-    sb.add(ALPHABET[_random.nextInt(ALPHABET.length)]);
+    sb.write(ALPHABET[_random.nextInt(ALPHABET.length)]);
   }
   return sb.toString();
 }
