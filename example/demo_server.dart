@@ -22,14 +22,17 @@ void main() {
   List<String> argv = (new Options()).arguments;
   String host = getHost(argv);
   host = (host == null) ? "127.0.0.1" : host;
-  var transport= new WebSocketTransport();
+  var transport = new WebSocketTransport();
   var collabServer = new CollabServer(transport);
-  var server = new HttpServer();
-  server.addRequestHandler(
-      (HttpRequest req) => (req.path == "/connect"),
-      transport.handler);
-  server.defaultRequestHandler = serveFile;
-  server.listen(host, 8080);
+  HttpServer.bind(host, 8080).then((HttpServer server) {
+    server.listen((HttpRequest req) {
+      if (req.uri.path == "/connect") {
+        // TODO
+      } else {
+        serveFile(req, req.response);
+      }
+    });
+  });
 }
 
 String getHost(List<String> argv) {
@@ -50,11 +53,11 @@ Map<String, String> contentTypes = const {
 
 /// Very simple async static file server. Possibly insecure!
 void serveFile(HttpRequest req, HttpResponse resp) {
-  String path = (req.path.endsWith('/')) ? ".${req.path}index.html" : ".${req.path}";
-  var cwd = new Directory.current().path;
+  String path = (req.uri.path.endsWith('/')) ? ".${req.uri.path}index.html" : req.uri.path;
+  var cwd = Directory.current.path;
   print("serving $path from $cwd");
 
-  File file = new File(path);
+  File file = new File("$cwd/$path");
   file.exists().then((exists) {
 //    print("$path ${(exists ? 'exists' : 'does not exist')}");
     if (exists) {
@@ -63,14 +66,13 @@ void serveFile(HttpRequest req, HttpResponse resp) {
           print("$path is empty?");
         }
         resp.headers.set(HttpHeaders.CONTENT_TYPE, getContentType(file));
-        resp.outputStream.writeString(text);
-        resp.outputStream.close();
+        file.openRead().pipe(req.response).catchError((e) {});
       });
     } else {
       resp.statusCode = HttpStatus.NOT_FOUND;
-      resp.outputStream.close();
+      resp.close();
     }
   });
 }
 
-String getContentType(File file) => contentTypes[file.name.split('.').last];
+String getContentType(File file) => contentTypes[file.path.split('.').last];

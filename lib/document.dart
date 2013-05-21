@@ -61,9 +61,9 @@ class Document {
       throw "illegal position: $position, ${_text.length} text: $_text";
     }
     StringBuffer sb = new StringBuffer();
-    sb.add(_text.substring(0, position));
-    sb.add(inserted);
-    sb.add(_text.substring(position + deleted.length));
+    sb.write(_text.substring(0, position));
+    sb.write(inserted);
+    sb.write(_text.substring(position + deleted.length));
     _text = sb.toString();
     DocumentChangeEvent event = new DocumentChangeEvent(this, position, deleted, inserted, _text);
     _fireUpdate(event);
