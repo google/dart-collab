@@ -14,6 +14,7 @@
 
 library web_client;
 
+import 'dart:async';
 import 'dart:html' as html;
 import 'package:collab/collab.dart';
 
