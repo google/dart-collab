@@ -18,8 +18,7 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'package:collab/collab.dart';
 
-part 'transport.dart';
-
+part 'connection.dart';
 
 typedef void StatusHandler(int status);
 const int DISCONNECTED = 0;
@@ -28,7 +27,6 @@ const int CONNECTING = 2;
 const int ERROR = 3;
 
 class CollabWebClient {
-//  html.WebSocket _socket;
   String _clientId;
   Document _document;
   Map<String, Completer> _pendingRequests; // might not be necessary anymore
@@ -45,35 +43,28 @@ class CollabWebClient {
   // if their sequence number is less than the pending operation.
   List<Operation> _incoming;
 
-  final Transport _transport;
-  Connection _conn;
+  final Connection _connection;
 
-  CollabWebClient(this._transport, Document this._document) {
+  CollabWebClient(Connection this._connection, Document this._document) {
     _pendingRequests = new Map<String, Completer>();
     _queue = new List<Operation>();
     _incoming = new List<Operation>();
 
     _statusHandlers = new List<StatusHandler>();
-    _onStatusChange(DISCONNECTED);
+    _onStatusChange(CONNECTING);
 
-    _transport.onOpen = (Connection conn) {
-      _onStatusChange(CONNECTING);
-      print("opened");
-      _conn = conn;
-      conn.onError = (error) {
-        _onStatusChange(ERROR);
-        print("error: $error");
-      };
-
-      conn.onClosed = () {
-        _onStatusChange(DISCONNECTED);
-        print("closed");
-      };
-
-      conn.onMessage = (Message message) {
-        _dispatch(message);
-      };
-    };
+    _connection.listen(
+        (message) {
+          _dispatch(message);
+        },
+        onError: (error) {
+          _onStatusChange(ERROR);
+          print("error: $error");
+        },
+        onDone: () {
+          _onStatusChange(DISCONNECTED);
+          print("closed");
+        });
   }
 
   Document get document => _document;
@@ -95,7 +86,7 @@ class CollabWebClient {
   }
 
   void send(Message message) {
-    _conn.send(message);
+    _connection.add(message);
   }
 
   void addStatusHandler(StatusHandler h) {

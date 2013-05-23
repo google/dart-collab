@@ -31,8 +31,9 @@ void main() {
   String host = window.location.hostname;
   print("host: $host");
 
-  var transport = new WebSocketTransport("ws://$host:8080/connect");
-  var client = new CollabWebClient(transport, doc);
+  var webSocket = new WebSocket("ws://$host:8080/connect");
+  var connection = new WebSocketConnection(webSocket);
+  var client = new CollabWebClient(connection, doc);
   client.addStatusHandler(onStatusChange);
   makeEditable(editor, client);
 }

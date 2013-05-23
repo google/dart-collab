@@ -48,6 +48,7 @@ class TextChangeListener {
       int pos = (_element as dynamic).selectionStart;
       _onChange();
     });
+    _oldValue = (_element as dynamic).value;
   }
 
   void addChangeHandler(TextChangeHandler handler) {
