@@ -22,9 +22,7 @@ import 'dart:isolate';
 import 'package:collab/collab.dart';
 import 'package:collab/utils.dart';
 
-part 'transport.dart';
-
-typedef void RequestHandler(HttpRequest request, HttpResponse response);
+part 'connection.dart';
 
 class CollabServer {
   // clientId -> connection
@@ -35,34 +33,29 @@ class CollabServer {
   final Map<String, Set<String>> _listeners;
   final Queue<Message> _queue;
 
-  final Transport _transport;
-
-  CollabServer(Transport this._transport)
+  CollabServer()
     : _connections = new Map<String, Connection>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
       _queue = new Queue<Message>() {
+  }
 
-    _transport.onOpen = (Connection conn) {
-      String clientId = randomId();
-      _connections[clientId] = conn;
-      print("new connection: $clientId");
-
-      conn.onClosed = () {
-        print("closed: $clientId");
-        _removeConnection(clientId);
-      };
-      conn.onError = (e) {
-        print("error: clientId: $clientId $e");
-        _removeConnection(clientId);
-      };
-      conn.onMessage = (Message message) {
-        _enqueue(message);
-      };
-
-      ClientIdMessage message = new ClientIdMessage(SERVER_ID, clientId);
-      conn.send(message);
-    };
+  void addConnection(Connection connection) {
+    String clientId = randomId();
+    _connections[clientId] = connection;
+    connection.listen((Message message) {
+      _enqueue(message);
+    },
+    onDone: () {
+      print("closed: $clientId");
+      _removeConnection(clientId);
+    },
+    onError: (e) {
+      print("error: $clientId $e");
+      _removeConnection(clientId);
+    });
+    ClientIdMessage message = new ClientIdMessage(SERVER_ID, clientId);
+    connection.add(message);
   }
 
   void _enqueue(Message message) {
@@ -71,7 +64,7 @@ class CollabServer {
   }
 
   void _processDeferred() {
-    new Timer(0, (timer) => _process());
+    Timer.run(() => _process());
   }
 
   void _process() {
@@ -139,20 +132,18 @@ class CollabServer {
       return;
     }
     for (String listenerId in listenerIds) {
-//      if (listenerId != clientId) {
         _send(listenerId, op);
-//      }
     }
   }
 
   void _send(String clientId, Message message) {
-    Connection conn = _connections[clientId];
-    if (conn == null) {
+    var connection = _connections[clientId];
+    if (connection == null) {
       // not sure why this happens sometimes
       _connections.remove(clientId);
       return;
     }
-    conn.send(message);
+    connection.add(message);
   }
 
   void _open(String clientId, String docId) {

@@ -1,4 +1,4 @@
-//  Copyright 2011 Google Inc. All Rights Reserved.
+//  Copyright 2013 Google Inc. All Rights Reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -12,17 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-library collab;
+part of collab;
 
-import 'dart:async';
-import 'dart:json' as JSON;
-import 'utils.dart';
-import 'package:logging/logging.dart';
-
-part 'connection.dart';
-part 'message.dart';
-part 'messages.dart';
-part 'document.dart';
-part 'operation.dart';
-part 'text.dart';
-part 'transport.dart';
+abstract class Connection implements Stream, StreamSink<Message> {
+}

@@ -12,8 +12,10 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+
 import 'package:collab/collab.dart';
 import 'package:collab/server/server.dart';
 import 'package:collab/utils.dart';
@@ -22,12 +24,18 @@ void main() {
   List<String> argv = (new Options()).arguments;
   String host = getHost(argv);
   host = (host == null) ? "127.0.0.1" : host;
-  var transport = new WebSocketTransport();
-  var collabServer = new CollabServer(transport);
+
+  var collabServer = new CollabServer();
+  StreamController sc = new StreamController();
+  sc.stream.transform(new WebSocketTransformer()).listen((WebSocket ws) {
+    var connection = new WebSocketConnection(ws);
+    collabServer.addConnection(connection);
+  });
+
   HttpServer.bind(host, 8080).then((HttpServer server) {
     server.listen((HttpRequest req) {
       if (req.uri.path == "/connect") {
-        // TODO
+        sc.add(req);
       } else {
         serveFile(req, req.response);
       }
