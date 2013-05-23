@@ -104,16 +104,15 @@ class CollabServer {
   void _doOperation(Operation op) {
     Document doc = _documents[op.docId];
     // TODO: apply transform
-    // transform by every applied op with a seq number greater than op.docVersion
-    // those operations are in flight to the client that sent [op] and will
-    // be transformed by op in the client. The result will be the same.
+    // transform by every applied op with a seq number greater than
+    // op.docVersion those operations are in flight to the client that sent [op]
+    // and will be transformed by op in the client. The result will be the same.
     Operation transformed = op;
     int currentVersion = doc.version;
     Queue<Operation> newerOps = new Queue<Operation>();
     for (int i = doc.log.length - 1; i >= 0; i--) {
       Operation appliedOp = doc.log[i];
       if (appliedOp.sequence > op.docVersion) {
-//        print("transforming appliedOp.sequence: ${appliedOp.sequence} op.docVersion: ${op.docVersion}");
         transformed = Operation.transform(transformed, appliedOp);
       }
     }

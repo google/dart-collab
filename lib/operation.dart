@@ -52,8 +52,8 @@ abstract class Operation extends Message {
   }
 
   final String docId;
-  // set when op created to the doc version of the client
-  // updated when operations from this client that are ahead of this op are applied
+  // set when op created to the doc version of the client updated when
+  // operations from this client that are ahead of this op are applied
   int docVersion;
   // set when an operation is applied by the server
   int sequence;

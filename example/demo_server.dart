@@ -59,15 +59,16 @@ Map<String, String> contentTypes = const {
   "css": "text/css",
 };
 
-/// Very simple async static file server. Possibly insecure!
+/// Very simple async static file server. Probably insecure!
 void serveFile(HttpRequest req, HttpResponse resp) {
-  String path = (req.uri.path.endsWith('/')) ? ".${req.uri.path}index.html" : req.uri.path;
+  String path = req.uri.path.endsWith('/')
+      ? ".${req.uri.path}index.html"
+      : req.uri.path;
   var cwd = Directory.current.path;
   print("serving $path from $cwd");
 
   File file = new File("$cwd/$path");
   file.exists().then((exists) {
-//    print("$path ${(exists ? 'exists' : 'does not exist')}");
     if (exists) {
       file.readAsString().then((text) {
         if (text == null) {

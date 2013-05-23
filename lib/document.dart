@@ -21,7 +21,8 @@ class DocumentChangeEvent {
   final String inserted;
   final String text;
 
-  DocumentChangeEvent(this.document, this.position, this.deleted, this.inserted, this.text);
+  DocumentChangeEvent(this.document, this.position, this.deleted, this.inserted,
+      this.text);
 
   String toString() => "DocumentChangeEvent {$position, $deleted, $inserted}";
 }
@@ -68,13 +69,6 @@ class Document {
     DocumentChangeEvent event = new DocumentChangeEvent(this, position, deleted, inserted, _text);
     _fireUpdate(event);
   }
-
-//  void set text(String text) {
-//    assert(text != null);
-//    _text = text;
-//    print("doc id:$id text: $_text");
-//    _fireUpdate();
-//  }
 
   String toString() => "Document {id: $id, text: $text}";
 }
@@ -142,7 +136,8 @@ class SnapshotMessage extends Message {
   final String text;
   final int version;
 
-  SnapshotMessage(String senderId, this.docId, this.text, this.version) : super("snapshot", senderId);
+  SnapshotMessage(String senderId, this.docId, this.text, this.version)
+    : super("snapshot", senderId);
 
   SnapshotMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),

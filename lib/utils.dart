@@ -16,7 +16,8 @@ library utils;
 
 import 'dart:math';
 
-const String ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const String ALPHABET =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 final Random _random = new Random();
 

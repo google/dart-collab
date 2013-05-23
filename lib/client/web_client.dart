@@ -102,13 +102,10 @@ class CollabWebClient {
       _onClientId(message);
     } else if (message is Operation) {
       Operation op = message;
-//      print("op: $op");
       if (op.senderId == _clientId) {
-        // this should be the server transformed version of pending op
-        // with it's sequence number set.
-        // transform incoming ops by pending, since pending was transformed
-        // by incoming on the server
-        // don't apply op
+        // this should be the server transformed version of pending op with its
+        // sequence number set. transform incoming ops by pending, since
+        // pending was transformed by incoming on the server don't apply op.
         assert(op.id == _pending.id);
         List toRemove = [];
         _incoming.forEach((Operation i) {

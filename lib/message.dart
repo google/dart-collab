@@ -57,8 +57,8 @@ class Message {
   /**
    * Parses [json] and returns the correct subtype of [Message].
    *
-   * In order for parse() to return the correct Message subtype a
-   * factory function must be registered.
+   * In order for parse() to return the correct Message subtype a factory
+   * function must be registered.
    */
   factory Message.parse(String json) {
     Map value = JSON.parse(json);
@@ -85,8 +85,8 @@ class Message {
    * Returns a [JSON.stringify] or Isolate SendPort compatible map
    * of String-> bool, String, num, List, Map.
    *
-   * [values] is merged into the result so that subclasses can call toMap()
-   * with additional values.
+   * [values] is merged into the result so that subclasses can call toMap() with
+   * additional values.
    */
   Map<String, Object> toMap([Map<String, Object> values]) {
     Map m = mergeMaps(values, {'type': type, 'id': id, 'senderId': senderId});

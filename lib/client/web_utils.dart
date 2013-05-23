@@ -26,9 +26,11 @@ class TextChangeEvent {
   final String deleted;
   final String inserted;
 
-  TextChangeEvent(this.target, this.text, this.position, this.deleted, this.inserted);
+  TextChangeEvent(this.target, this.text, this.position, this.deleted,
+      this.inserted);
 
-  String toString() => "TextChangeEvent {text: $text, position: $position, deleted: $deleted, inserted: $inserted}";
+  String toString() => "TextChangeEvent {text: $text, position: $position, "
+      + "deleted: $deleted, inserted: $inserted}";
 }
 
 typedef void TextChangeHandler(TextChangeEvent e);
@@ -60,11 +62,11 @@ class TextChangeListener {
   }
 
   /*
-   * This algorithm works because there can only be one contiguous change
-   * as a result of typing or pasting. If a paste contains a common substring
-   * with the pasted over text, this will not attempt to find it and make
-   * more than one delete/insert pair. This is actually good because it
-   * preserves user intention when used in an OT system.
+   * This algorithm works because there can only be one contiguous change as a
+   * result of typing or pasting. If a paste contains a common substring with
+   * the pasted over text, this will not attempt to find it and make more than
+   * one delete/insert pair. This is actually good because it preserves user
+   * intention when used in an OT system.
    */
   void _onChange() {
     String newValue = (_element as dynamic).value;
@@ -94,7 +96,8 @@ class TextChangeListener {
   }
 
   void _fire(String text, int position, String deleted, String inserted) {
-    TextChangeEvent event = new TextChangeEvent(_element, text, position, deleted, inserted);
+    TextChangeEvent event =
+        new TextChangeEvent(_element, text, position, deleted, inserted);
     _handlers.forEach((handler) { handler(event); });
   }
 }
@@ -108,8 +111,8 @@ void makeEditable(Element element, CollabWebClient client) {
     print(event);
     if (listen) {
       listen = false;
-      collab.TextOperation op =
-          new collab.TextOperation(client.id, "test", client.docVersion, event.position, event.deleted, event.inserted);
+      collab.TextOperation op = new collab.TextOperation(client.id, "test",
+          client.docVersion, event.position, event.deleted, event.inserted);
       client.queue(op);
       listen = true;
     }
@@ -121,7 +124,8 @@ void makeEditable(Element element, CollabWebClient client) {
       int cursorPos = (element as dynamic).selectionStart;
       (element as dynamic).value = event.text;
       if (event.position < cursorPos) {
-        cursorPos = max(0, cursorPos + event.inserted.length - event.deleted.length);
+        cursorPos =
+            max(0, cursorPos + event.inserted.length - event.deleted.length);
       }
       (element as dynamic).setSelectionRange(cursorPos, cursorPos);
       listener.reset();

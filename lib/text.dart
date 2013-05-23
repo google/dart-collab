@@ -22,7 +22,8 @@ class TextOperation extends Operation {
   final String deleted;
   final String inserted;
 
-  TextOperation(String senderId, String docId, int docVersion, this.position, this.deleted, this.inserted)
+  TextOperation(String senderId, String docId, int docVersion, this.position,
+      this.deleted, this.inserted)
     : super("text", senderId, docId, docVersion);
 
   TextOperation.fromMap(Map<String, Object> map)
@@ -45,6 +46,7 @@ class TextOperation extends Operation {
     // should docVersion be updated?
     // should [by] have to have a sequence number?
     // A: yes, and it should be less than op.docVersion
-    return new TextOperation(op.senderId, op.docId, op.docVersion, newPosition, op.deleted, op.inserted);
+    return new TextOperation(op.senderId, op.docId, op.docVersion, newPosition,
+        op.deleted, op.inserted);
   }
 }
