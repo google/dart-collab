@@ -66,7 +66,8 @@ class Document {
     sb.write(inserted);
     sb.write(_text.substring(position + deleted.length));
     _text = sb.toString();
-    DocumentChangeEvent event = new DocumentChangeEvent(this, position, deleted, inserted, _text);
+    DocumentChangeEvent event =
+        new DocumentChangeEvent(this, position, deleted, inserted, _text);
     _fireUpdate(event);
   }
 
