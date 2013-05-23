@@ -1,5 +1,6 @@
 name: collab
 description: A library for building real-time collaborative apps using operational tranforms.
 dependencies:
+  browser: any
   unittest: any
   logging: any
