@@ -53,7 +53,7 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.listen(
+    _connection.stream.listen(
         (message) {
           _dispatch(message);
         },

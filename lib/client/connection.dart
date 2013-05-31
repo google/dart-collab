@@ -15,27 +15,22 @@ part of web_client;
 //  limitations under the License.
 
 class WebSocketConnection implements Connection {
+  static final _msgTransformer =
+      new StreamTransformer(handleData: (value, sink) {
+        if (value is html.MessageEvent) {
+          var message = new Message.parse(value.data);
+          sink.add(message);
+        }
+      });
+
   final html.WebSocket _socket;
 
   WebSocketConnection(html.WebSocket this._socket);
 
-  StreamSubscription listen(void onData(data),
-                            {void onError(error),
-                             void onDone(),
-                             bool cancelOnError}) {
-    var transformer = new StreamTransformer(handleData: (value, sink) {
-      if (value is html.MessageEvent) {
-        var message = new Message.parse(value.data);
-        sink.add(message);
-      }
-    });
-    return _socket.onMessage.transform(transformer).listen(onData,
-        onError: onError,
-        onDone: onDone,
-        cancelOnError: cancelOnError);
-  }
-
+  Stream<Message> get stream => _msgTransformer.bind(_socket.onMessage);
   void add(Message message) => _socket.send(message.json);
-
-  Future close() => _socket.close();
+  void addStream(Stream<Message> stream) => stream.listen((Message msg) {
+    _socket.send(msg.json);
+  });
+  void close() => _socket.close();
 }

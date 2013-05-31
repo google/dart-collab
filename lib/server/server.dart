@@ -43,7 +43,7 @@ class CollabServer {
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
-    connection.listen((Message message) {
+    connection.stream.listen((Message message) {
       _enqueue(message);
     },
     onDone: () {

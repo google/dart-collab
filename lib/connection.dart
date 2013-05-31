@@ -14,5 +14,9 @@
 
 part of collab;
 
-abstract class Connection implements Stream, StreamSink<Message> {
+abstract class Connection {
+  Stream<Message> get stream;
+  void add(Message message);
+  void addStream(Stream<Message> message);
+  void close();
 }
