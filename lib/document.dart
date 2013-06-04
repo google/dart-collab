@@ -14,38 +14,30 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-class DocumentChangeEvent {
+abstract class DocumentChangeEvent {
   final Document document;
-  final int position;
-  final String deleted;
-  final String inserted;
-  final String text;
 
-  DocumentChangeEvent(this.document, this.position, this.deleted, this.inserted,
-      this.text);
-
-  String toString() => "DocumentChangeEvent {$position, $deleted, $inserted}";
+  DocumentChangeEvent(this.document);
 }
 
 typedef void DocumentChangeHandler(DocumentChangeEvent e);
 
-/*
- * A simple text-based document with a modification log.
- *
- * TODO: rename to TextDocument
- */
-class Document {
-  final List<DocumentChangeHandler> _handlers;
+abstract class Document {
   final String id;
-  final List<Operation> log;
-  String _text;
   int version;
+  final List<Operation> log;
+  final List<DocumentChangeHandler> _handlers;
 
   Document(this.id)
-    : _handlers = new List<DocumentChangeHandler>(),
-      log = new List(), _text = "", version = 0;
+    : version = 0,
+      log = new List<Operation>(),
+      _handlers = new List<DocumentChangeHandler>();
+
+  String get content;
+  void set content(String contents);
 
   void addChangeHandler(DocumentChangeHandler handler) {
+    assert(handler != null);
     print("addChangeHandler");
     _handlers.add(handler);
   }
@@ -54,26 +46,7 @@ class Document {
     print("fireUpdate");
     _handlers.forEach((handler) { handler(event); });
   }
-
-  String get text => _text;
-
-  void modify(int position, String deleted, String inserted) {
-    if ((position < 0) || (position > _text.length)) {
-      throw "illegal position: $position, ${_text.length} text: $_text";
-    }
-    StringBuffer sb = new StringBuffer();
-    sb.write(_text.substring(0, position));
-    sb.write(inserted);
-    sb.write(_text.substring(position + deleted.length));
-    _text = sb.toString();
-    DocumentChangeEvent event =
-        new DocumentChangeEvent(this, position, deleted, inserted, _text);
-    _fireUpdate(event);
-  }
-
-  String toString() => "Document {id: $id, text: $text}";
 }
-
 
 /*
  * Creates a [Document]. This is not an operation because it does
@@ -134,18 +107,18 @@ class CloseMessage extends Message {
  */
 class SnapshotMessage extends Message {
   final String docId;
-  final String text;
   final int version;
+  final String content;
 
-  SnapshotMessage(String senderId, this.docId, this.text, this.version)
+  SnapshotMessage(String senderId, this.docId, this.version, this.content)
     : super("snapshot", senderId);
 
   SnapshotMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
       docId = map['docId'],
-      text = map['text'],
-      version = map['version'];
+      version = map['version'],
+      content = map['content'];
 
   toMap([values]) => super.toMap(mergeMaps(values,
-      {'docId': docId, 'text': text, 'version': version}));
+      {'docId': docId, 'version': version, 'content': content}));
 }

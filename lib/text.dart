@@ -15,6 +15,57 @@ part of collab;
 //  limitations under the License.
 
 /*
+ * A simple text-based document.
+ */
+class TextDocument extends Document {
+  String _text;
+
+  TextDocument(String id)
+    : super(id),
+      _text = "";
+
+  String get content => _text;
+
+  void set content(String content) {
+    assert(content != null);
+    modify(0, _text, content);
+  }
+
+  void modify(int position, String deleted, String inserted) {
+    if ((position < 0) || (position > _text.length)) {
+      throw "illegal position: $position, ${_text.length} text: $_text";
+    }
+    StringBuffer sb = new StringBuffer();
+    sb.write(_text.substring(0, position));
+    sb.write(inserted);
+    sb.write(_text.substring(position + deleted.length));
+    _text = sb.toString();
+    DocumentChangeEvent event =
+        new TextChangeEvent(this, position, deleted, inserted, _text);
+    _fireUpdate(event);
+  }
+
+  String toString() => "Document {id: $id, text: $_text}";
+}
+
+/*
+ * Describes a change to a body of text.
+ */
+class TextChangeEvent extends DocumentChangeEvent {
+  final int position;
+  final String deleted;
+  final String inserted;
+  final String text;
+
+  TextChangeEvent(Document document, this.position, this.deleted,
+      this.inserted, this.text)
+    : super(document);
+
+  String toString() =>
+      "TextDocumentChangeEvent {$position, $deleted, $inserted}";
+}
+
+/*
  * Inserts a string into a text document.
  */
 class TextOperation extends Operation {
@@ -35,7 +86,7 @@ class TextOperation extends Operation {
   toMap([values]) => super.toMap(mergeMaps(values, {
       'position': position, 'deleted': deleted, 'inserted': inserted}));
 
-  void apply(Document document) {
+  void apply(TextDocument document) {
     document.modify(position, deleted, inserted);
   }
 

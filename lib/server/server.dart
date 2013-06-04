@@ -156,7 +156,7 @@ class CollabServer {
     _listeners.putIfAbsent(docId, () => new Set<String>());
     _listeners[docId].add(clientId);
     Document d = _documents[docId];
-    SnapshotMessage m = new SnapshotMessage(SERVER_ID, docId, d.text, d.version);
+    Message m = new SnapshotMessage(SERVER_ID, docId, d.version, d.content);
     _send(clientId, m);
   }
 
@@ -172,7 +172,7 @@ class CollabServer {
   }
 
   Document _create(String docId) {
-    Document d = new Document(docId);
+    Document d = new TextDocument(docId);
     _documents[d.id] = d;
     return d;
   }

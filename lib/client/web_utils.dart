@@ -118,7 +118,7 @@ void makeEditable(Element element, CollabWebClient client) {
     }
   });
 
-  client.document.addChangeHandler((collab.DocumentChangeEvent event) {
+  client.document.addChangeHandler((event) {
     if (listen) {
       listen = false;
       int cursorPos = (element as dynamic).selectionStart;

@@ -180,7 +180,7 @@ class CollabWebClient {
   }
 
   void _onSnapshot(SnapshotMessage message) {
-    _document.modify(0, document.text, message.text);
+    _document.content = message.content;
     _document.version = message.version;
   }
 }
