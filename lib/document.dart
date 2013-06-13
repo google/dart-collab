@@ -22,13 +22,16 @@ abstract class DocumentChangeEvent {
 
 typedef void DocumentChangeHandler(DocumentChangeEvent e);
 
+typedef Document DocumentFactory(String id, String type);
+
 abstract class Document {
   final String id;
+  final String type;
   int version;
   final List<Operation> log;
   final List<DocumentChangeHandler> _handlers;
 
-  Document(this.id)
+  Document(this.id, this.type)
     : version = 0,
       log = new List<Operation>(),
       _handlers = new List<DocumentChangeHandler>();
@@ -53,8 +56,15 @@ abstract class Document {
  * not operate on an existing document.
  */
 class CreateMessage extends Message {
-  CreateMessage(String senderId) : super("create", senderId);
-  CreateMessage.fromMap(Map<String, Object> map) : super.fromMap(map);
+  final String docType;
+
+  CreateMessage(this.docType, String senderId) : super("create", senderId);
+
+  CreateMessage.fromMap(Map<String, Object> map)
+    : super.fromMap(map),
+      docType = map['docType'];
+
+  toMap([values]) => super.toMap(mergeMaps(values, {'docType': docType}));
 }
 
 /*
@@ -62,14 +72,17 @@ class CreateMessage extends Message {
  */
 class CreatedMessage extends Message {
   String docId;
-  CreatedMessage(this.docId, [String replyTo])
+  String docType;
+  CreatedMessage(this.docId, this.docType, [String replyTo])
     : super("created", SERVER_ID, replyTo);
 
   CreatedMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
-    docId = map['docId'];
+    docId = map['docId'],
+    docType = map['docType'];
 
-  toMap([values]) => super.toMap(mergeMaps(values, {'docId': docId}));
+  toMap([values]) =>
+      super.toMap(mergeMaps(values, {'docId': docId, 'docType': docType}));
 }
 
 /*
@@ -77,14 +90,18 @@ class CreatedMessage extends Message {
  */
 class OpenMessage extends Message {
   final String docId;
+  final String docType;
 
-  OpenMessage(this.docId, String senderId) : super("open", senderId);
+  OpenMessage(this.docId, this.docType, String senderId)
+    : super("open", senderId);
 
   OpenMessage.fromMap(Map<String, Object> map)
     : super.fromMap(map),
-      docId = map['docId'];
+      docId = map['docId'],
+      docType = map['docType'];
 
-  toMap([values]) => super.toMap(mergeMaps(values, {'docId': docId}));
+  toMap([values]) =>
+      super.toMap(mergeMaps(values, {'docId': docId, 'docType': docType}));
 }
 
 /*

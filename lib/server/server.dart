@@ -27,6 +27,8 @@ part 'connection.dart';
 class CollabServer {
   // clientId -> connection
   final Map<String, Connection> _connections;
+  // docType -> DocumentFactory
+  final Map<String, DocumentFactory> _factories;
   // docId -> document
   final Map<String, Document> _documents;
   // docId -> clientId
@@ -35,6 +37,7 @@ class CollabServer {
 
   CollabServer()
     : _connections = new Map<String, Connection>(),
+      _factories = new Map<String, DocumentFactory>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
       _queue = new Queue<Message>() {
@@ -56,6 +59,10 @@ class CollabServer {
     });
     ClientIdMessage message = new ClientIdMessage(SERVER_ID, clientId);
     connection.add(message);
+  }
+
+  void registerDocumentType(String docType, DocumentFactory factory) {
+    _factories[docType] = factory;
   }
 
   void _enqueue(Message message) {
@@ -86,7 +93,7 @@ class CollabServer {
         break;
       case "open":
         OpenMessage m = message;
-        _open(clientId, m.docId);
+        _open(clientId, m.docId, m.docType);
         break;
       case "close":
         CloseMessage m = message;
@@ -145,9 +152,9 @@ class CollabServer {
     connection.add(message);
   }
 
-  void _open(String clientId, String docId) {
+  void _open(String clientId, String docId, String docType) {
     if (_documents[docId] == null) {
-      _create(docId);
+      _create(docId, docType);
     }
     _addListener(clientId, docId);
   }
@@ -166,13 +173,13 @@ class CollabServer {
   }
 
   void create(String clientId, CreateMessage message) {
-    var d = _create(randomId());
-    CreatedMessage m = new CreatedMessage(d.id, message.id);
+    var d = _create(randomId(), message.docType);
+    CreatedMessage m = new CreatedMessage(d.id, d.type, message.id);
     _send(clientId, m);
   }
 
-  Document _create(String docId) {
-    Document d = new TextDocument(docId);
+  Document _create(String docId, String docType) {
+    Document d = _factories[docType](docId, docType);
     _documents[d.id] = d;
     return d;
   }

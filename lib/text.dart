@@ -14,14 +14,16 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+Document textDocFactory(String id, String type) => new TextDocument(id, type);
+
 /*
  * A simple text-based document.
  */
 class TextDocument extends Document {
   String _text;
 
-  TextDocument(String id)
-    : super(id),
+  TextDocument(String id, String type)
+    : super(id, type),
       _text = "";
 
   String get content => _text;
