@@ -27,7 +27,7 @@ void main() {
   print("dart-collab demo");
   editor = query('#editor');
   statusDiv = query('#status');
-  doc = new collab.TextDocument("test", "text");
+  doc = new collab.Document("test", "text", new collab.TextContent());
   String host = window.location.hostname;
   print("host: $host");
 

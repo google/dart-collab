@@ -118,16 +118,19 @@ void makeEditable(Element element, CollabWebClient client) {
     }
   });
 
-  client.document.addChangeHandler((event) {
+  client.document.addChangeHandler((collab.DocumentChangeEvent docEvent) {
     if (listen) {
       listen = false;
-      int cursorPos = (element as dynamic).selectionStart;
-      (element as dynamic).value = event.text;
-      if (event.position < cursorPos) {
-        cursorPos =
-            max(0, cursorPos + event.inserted.length - event.deleted.length);
+      var e = docEvent.cause;
+      if (e is collab.TextChangeEvent) {
+        int cursorPos = (element as dynamic).selectionStart;
+        (element as dynamic).value = e.text;
+        if (e.position < cursorPos) {
+          cursorPos =
+              max(0, cursorPos + e.inserted.length - e.deleted.length);
+        }
+        (element as dynamic).setSelectionRange(cursorPos, cursorPos);
       }
-      (element as dynamic).setSelectionRange(cursorPos, cursorPos);
       listener.reset();
       listen = true;
     }

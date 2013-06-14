@@ -28,7 +28,7 @@ class CollabServer {
   // clientId -> connection
   final Map<String, Connection> _connections;
   // docType -> DocumentFactory
-  final Map<String, DocumentFactory> _factories;
+  final Map<String, ContentFactory> _factories;
   // docId -> document
   final Map<String, Document> _documents;
   // docId -> clientId
@@ -37,7 +37,7 @@ class CollabServer {
 
   CollabServer()
     : _connections = new Map<String, Connection>(),
-      _factories = new Map<String, DocumentFactory>(),
+      _factories = new Map<String, ContentFactory>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
       _queue = new Queue<Message>() {
@@ -61,7 +61,7 @@ class CollabServer {
     connection.add(message);
   }
 
-  void registerDocumentType(String docType, DocumentFactory factory) {
+  void registerDocumentType(String docType, ContentFactory factory) {
     _factories[docType] = factory;
   }
 
@@ -125,8 +125,7 @@ class CollabServer {
     }
     doc.version++;
     transformed.sequence = doc.version;
-
-    transformed.apply(doc);
+    transformed.apply(doc.content);
     doc.log.add(transformed);
     _broadcast(transformed);
   }
@@ -163,7 +162,8 @@ class CollabServer {
     _listeners.putIfAbsent(docId, () => new Set<String>());
     _listeners[docId].add(clientId);
     Document d = _documents[docId];
-    Message m = new SnapshotMessage(SERVER_ID, docId, d.version, d.content);
+    Message m =
+        new SnapshotMessage(SERVER_ID, docId, d.version, d.content.serialize());
     _send(clientId, m);
   }
 
@@ -179,7 +179,8 @@ class CollabServer {
   }
 
   Document _create(String docId, String docType) {
-    Document d = _factories[docType](docId, docType);
+    Content c = _factories[docType]();
+    Document d = new Document(docId, docType, c);
     _documents[d.id] = d;
     return d;
   }

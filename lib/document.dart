@@ -14,30 +14,46 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-abstract class DocumentChangeEvent {
-  final Document document;
 
-  DocumentChangeEvent(this.document);
+abstract class ContentChangeEvent {}
+
+abstract class Content {
+  StreamController<ContentChangeEvent> _controller;
+
+  Content()
+    : _controller = new StreamController<ContentChangeEvent>();
+
+  String serialize();
+  void deserialize(String data);
+  Stream<ContentChangeEvent> get changes => _controller.stream;
+}
+
+typedef Content ContentFactory();
+
+class DocumentChangeEvent {
+  final Document document;
+  final ContentChangeEvent cause;
+  DocumentChangeEvent(this.document, this.cause);
 }
 
 typedef void DocumentChangeHandler(DocumentChangeEvent e);
 
-typedef Document DocumentFactory(String id, String type);
-
-abstract class Document {
-  final String id;
+class Document {
   final String type;
+  final String id;
   int version;
+  final Content content;
   final List<Operation> log;
   final List<DocumentChangeHandler> _handlers;
 
-  Document(this.id, this.type)
+  Document(String this.id, String this.type, Content this.content)
     : version = 0,
       log = new List<Operation>(),
-      _handlers = new List<DocumentChangeHandler>();
-
-  String get content;
-  void set content(String contents);
+      _handlers = new List<DocumentChangeHandler>() {
+    content.changes.listen((ContentChangeEvent e) {
+      _fireUpdate(new DocumentChangeEvent(this, e));
+    });
+  }
 
   void addChangeHandler(DocumentChangeHandler handler) {
     assert(handler != null);

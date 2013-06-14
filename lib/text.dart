@@ -14,57 +14,48 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-Document textDocFactory(String id, String type) => new TextDocument(id, type);
-
 /*
  * A simple text-based document.
  */
-class TextDocument extends Document {
-  String _text;
+class TextContent extends Content {
+  static TextContent factory() => new TextContent();
 
-  TextDocument(String id, String type)
-    : super(id, type),
-      _text = "";
+  String _content;
 
-  String get content => _text;
+  TextContent()
+    : this._content = "";
 
-  void set content(String content) {
-    assert(content != null);
-    modify(0, _text, content);
-  }
+  TextContent.fromString(String this._content);
 
-  void modify(int position, String deleted, String inserted) {
-    if ((position < 0) || (position > _text.length)) {
-      throw "illegal position: $position, ${_text.length} text: $_text";
+  void modify(int pos, String del, String ins) {
+    if ((pos < 0) || (pos > _content.length)) {
+      throw "illegal position: ${pos}, ${_content.length}";
     }
     StringBuffer sb = new StringBuffer();
-    sb.write(_text.substring(0, position));
-    sb.write(inserted);
-    sb.write(_text.substring(position + deleted.length));
-    _text = sb.toString();
-    DocumentChangeEvent event =
-        new TextChangeEvent(this, position, deleted, inserted, _text);
-    _fireUpdate(event);
+    sb.write(_content.substring(0, pos));
+    sb.write(ins);
+    sb.write(_content.substring(pos + del.length));
+    _content = sb.toString();
+    var event = new TextChangeEvent(pos, del, ins, _content);
+    _controller.add(event);
   }
 
-  String toString() => "Document {id: $id, text: $_text}";
+  String serialize() => _content;
+  void deserialize(String content) => modify(0, _content, content);
 }
 
 /*
  * Describes a change to a body of text.
  */
-class TextChangeEvent extends DocumentChangeEvent {
+class TextChangeEvent extends ContentChangeEvent {
   final int position;
   final String deleted;
   final String inserted;
   final String text;
 
-  TextChangeEvent(Document document, this.position, this.deleted,
-      this.inserted, this.text)
-    : super(document);
+  TextChangeEvent(this.position, this.deleted, this.inserted, this.text);
 
-  String toString() =>
-      "TextDocumentChangeEvent {$position, $deleted, $inserted}";
+  String toString() => "TextChangeEvent {$position, $deleted, $inserted}";
 }
 
 /*
@@ -88,8 +79,8 @@ class TextOperation extends Operation {
   toMap([values]) => super.toMap(mergeMaps(values, {
       'position': position, 'deleted': deleted, 'inserted': inserted}));
 
-  void apply(TextDocument document) {
-    document.modify(position, deleted, inserted);
+  void apply(TextContent content) {
+    content.modify(position, deleted, inserted);
   }
 
   static TextOperation transformInsert(TextOperation op, TextOperation by) {
