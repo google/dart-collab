@@ -18,14 +18,13 @@ part of collab;
 abstract class ContentChangeEvent {}
 
 abstract class Content {
-  StreamController<ContentChangeEvent> _controller;
+  StreamController<ContentChangeEvent> controller;
 
   Content()
-    : _controller = new StreamController<ContentChangeEvent>();
+    : controller = new StreamController<ContentChangeEvent>();
 
   String serialize();
   void deserialize(String data);
-  Stream<ContentChangeEvent> get changes => _controller.stream;
 }
 
 typedef Content ContentFactory();
@@ -50,7 +49,7 @@ class Document {
     : version = 0,
       log = new List<Operation>(),
       _handlers = new List<DocumentChangeHandler>() {
-    content.changes.listen((ContentChangeEvent e) {
+    content.controller.stream.listen((ContentChangeEvent e) {
       _fireUpdate(new DocumentChangeEvent(this, e));
     });
   }

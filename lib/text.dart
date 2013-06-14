@@ -37,7 +37,7 @@ class TextContent extends Content {
     sb.write(_content.substring(pos + del.length));
     _content = sb.toString();
     var event = new TextChangeEvent(pos, del, ins, _content);
-    _controller.add(event);
+    controller.add(event);
   }
 
   String serialize() => _content;
