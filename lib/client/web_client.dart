@@ -53,7 +53,7 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.stream.listen(
+    _connection.stream.transform(MSG_TRANSFORMER).listen(
         (message) {
           _dispatch(message);
         },
@@ -86,7 +86,7 @@ class CollabWebClient {
   }
 
   void send(Message message) {
-    _connection.add(message);
+    _connection.add(message.json);
   }
 
   void addStatusHandler(StatusHandler h) {

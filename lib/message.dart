@@ -23,6 +23,13 @@ typedef Message MessageFactory(Map<String, Object> map);
 
 String SERVER_ID = "_server";
 
+// TODO temporary until DocumentTypes handle deserialization
+final StreamTransformer<dynamic, Message> MSG_TRANSFORMER =
+    new StreamTransformer(handleData: (value, sink) {
+      var message = new Message.parse(value);
+      sink.add(message);
+    });
+
 /**
  * Messages are sent between clients and servers.
  */

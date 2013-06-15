@@ -15,8 +15,8 @@
 part of collab;
 
 abstract class Connection {
-  Stream<Message> get stream;
-  void add(Message message);
-  void addStream(Stream<Message> message);
+  Stream get stream;
+  void add(String message);
+  void addStream(Stream<String> message);
   void close();
 }

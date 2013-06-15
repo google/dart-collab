@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:json' as JSON;
 
 import 'package:collab/collab.dart';
 import 'package:collab/utils.dart';
@@ -46,8 +47,8 @@ class CollabServer {
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
-    connection.stream.listen((Message message) {
-      _enqueue(message);
+    connection.stream.transform(MSG_TRANSFORMER).listen((Message msg) {
+      _enqueue(msg);
     },
     onDone: () {
       print("closed: $clientId");
@@ -58,7 +59,7 @@ class CollabServer {
       _removeConnection(clientId);
     });
     ClientIdMessage message = new ClientIdMessage(SERVER_ID, clientId);
-    connection.add(message);
+    connection.add(message.json);
   }
 
   void registerDocumentType(String docType, DocumentFactory factory) {
@@ -148,7 +149,7 @@ class CollabServer {
       _connections.remove(clientId);
       return;
     }
-    connection.add(message);
+    connection.add(message.json);
   }
 
   void _open(String clientId, String docId, String docType) {
