@@ -15,43 +15,27 @@ part of collab;
 //  limitations under the License.
 
 
-abstract class ContentChangeEvent {}
-
-abstract class Content {
-  StreamController<ContentChangeEvent> controller;
-
-  Content()
-    : controller = new StreamController<ContentChangeEvent>();
-
-  String serialize();
-  void deserialize(String data);
-}
-
-typedef Content ContentFactory();
+typedef Document DocumentFactory(String id);
 
 class DocumentChangeEvent {
   final Document document;
-  final ContentChangeEvent cause;
-  DocumentChangeEvent(this.document, this.cause);
+
+  DocumentChangeEvent(this.document);
 }
 
 typedef void DocumentChangeHandler(DocumentChangeEvent e);
 
-class Document {
+abstract class Document {
   final String type;
   final String id;
   int version;
-  final Content content;
   final List<Operation> log;
   final List<DocumentChangeHandler> _handlers;
 
-  Document(String this.id, String this.type, Content this.content)
+  Document(String this.id, String this.type)
     : version = 0,
       log = new List<Operation>(),
       _handlers = new List<DocumentChangeHandler>() {
-    content.controller.stream.listen((ContentChangeEvent e) {
-      _fireUpdate(new DocumentChangeEvent(this, e));
-    });
   }
 
   void addChangeHandler(DocumentChangeHandler handler) {
@@ -60,10 +44,13 @@ class Document {
     _handlers.add(handler);
   }
 
-  void _fireUpdate(DocumentChangeEvent event) {
+  void fireUpdate(DocumentChangeEvent event) {
     print("fireUpdate");
     _handlers.forEach((handler) { handler(event); });
   }
+
+  String serialize();
+  void deserialize(String data);
 }
 
 /*

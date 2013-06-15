@@ -76,7 +76,7 @@ class CollabWebClient {
   // TODO: change away from send, since only the client can send
   // might need a separate envelope from message
   void queue(Operation operation) {
-    operation.apply(_document.content);
+    operation.apply(_document);
     if (_pending == null) {
       _pending = operation;
       send(operation);
@@ -147,7 +147,7 @@ class CollabWebClient {
   }
 
   void _apply(Operation op) {
-    op.apply(_document.content);
+    op.apply(_document);
     _document.log.add(op);
     if (op.sequence > _document.version) {
       _document.version = op.sequence;
@@ -180,7 +180,7 @@ class CollabWebClient {
   }
 
   void _onSnapshot(SnapshotMessage message) {
-    _document.content.deserialize(message.content);
+    _document.deserialize(message.content);
     _document.version = message.version;
   }
 }

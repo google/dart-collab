@@ -17,15 +17,17 @@ part of collab;
 /*
  * A simple text-based document.
  */
-class TextContent extends Content {
-  static TextContent factory() => new TextContent();
+class TextDocument extends Document {
+  static TextDocument factory(String id) => new TextDocument(id);
 
   String _content;
 
-  TextContent()
-    : this._content = "";
+  TextDocument(String id)
+    : this._content = "",
+      super(id, "text");
 
-  TextContent.fromString(String this._content);
+  TextDocument.fromString(String id, String this._content)
+    : super(id, "text");
 
   void modify(int pos, String del, String ins) {
     if ((pos < 0) || (pos > _content.length)) {
@@ -36,8 +38,8 @@ class TextContent extends Content {
     sb.write(ins);
     sb.write(_content.substring(pos + del.length));
     _content = sb.toString();
-    var event = new TextChangeEvent(pos, del, ins, _content);
-    controller.add(event);
+    var event = new TextChangeEvent(this, pos, del, ins, _content);
+    fireUpdate(event);
   }
 
   String serialize() => _content;
@@ -47,15 +49,18 @@ class TextContent extends Content {
 /*
  * Describes a change to a body of text.
  */
-class TextChangeEvent extends ContentChangeEvent {
+class TextChangeEvent extends DocumentChangeEvent {
   final int position;
   final String deleted;
   final String inserted;
   final String text;
 
-  TextChangeEvent(this.position, this.deleted, this.inserted, this.text);
+  TextChangeEvent(Document document, this.position, this.deleted, this.inserted,
+      this.text)
+    : super(document);
 
-  String toString() => "TextChangeEvent {$position, $deleted, $inserted}";
+  String toString() =>
+      "TextChangeEvent {$document.id, $position, $deleted, $inserted}";
 }
 
 /*
@@ -79,8 +84,8 @@ class TextOperation extends Operation {
   toMap([values]) => super.toMap(mergeMaps(values, {
       'position': position, 'deleted': deleted, 'inserted': inserted}));
 
-  void apply(TextContent content) {
-    content.modify(position, deleted, inserted);
+  void apply(TextDocument document) {
+    document.modify(position, deleted, inserted);
   }
 
   static TextOperation transformInsert(TextOperation op, TextOperation by) {
