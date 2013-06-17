@@ -23,6 +23,14 @@ class TextDocumentType extends DocumentType {
     return new TextDocument(id);
   }
 
+  Message parseMessage(Map json) {
+    String type = json['type'];
+    if (type == "text") {
+      return new TextOperation.fromMap(json);
+    }
+    return null;
+  }
+
   Operation transform(Operation op, Operation by) {
     if ((op.type == "text") && (by.type == "text")) {
       return _transformInsert(op, by);

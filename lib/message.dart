@@ -19,32 +19,25 @@ part of collab;
  * Defines the basic [Message] class.
  */
 
-typedef Message MessageFactory(Map<String, Object> map);
-
 String SERVER_ID = "_server";
 
-// TODO temporary until DocumentTypes handle deserialization
-final StreamTransformer<dynamic, Message> MSG_TRANSFORMER =
+/**
+ * Deserialize JSON messages to [Map]s.
+ */
+final StreamTransformer<dynamic, Map> JSON_TO_MAP =
     new StreamTransformer(handleData: (value, sink) {
-      var message = new Message.parse(value);
-      sink.add(message);
+      var json = JSON.parse(value);
+      if (json is! Map) {
+        sink.addError("Invalid Message: value");
+      } else {
+        sink.add(json);
+      }
     });
 
 /**
  * Messages are sent between clients and servers.
  */
 class Message {
-  static Map<String, MessageFactory> _getMessageFactories() => {
-    "log": (m) => new LogMessage.fromMap(m),
-    "create": (m) => new CreateMessage.fromMap(m),
-    "created": (m) => new CreatedMessage.fromMap(m),
-    "clientId": (m) => new ClientIdMessage.fromMap(m),
-    "open": (m) => new OpenMessage.fromMap(m),
-    "close": (m) => new CloseMessage.fromMap(m),
-    "text": (m) => new TextOperation.fromMap(m),
-    "snapshot": (m) => new SnapshotMessage.fromMap(m),
-  };
-
   final String id;
   final String senderId;
   // id of the messgage this is in reply to. can be null.
@@ -60,26 +53,6 @@ class Message {
       senderId = map['senderId'],
       replyTo = map['replyTo'],
       type = map['type'];
-
-  /**
-   * Parses [json] and returns the correct subtype of [Message].
-   *
-   * In order for parse() to return the correct Message subtype a factory
-   * function must be registered.
-   */
-  factory Message.parse(String json) {
-    Map value = JSON.parse(json);
-    if (value is! Map) {
-      throw "Invalid Message: $json";
-    }
-    String type = value['type'];
-    Message message;
-    MessageFactory factory = _getMessageFactories()[type];
-    if (factory != null) {
-      message = factory(value);
-    }
-    return message;
-  }
 
   /**
    * Returns a JSON representation of the message.
@@ -101,5 +74,34 @@ class Message {
       m['replyTo'] = replyTo;
     }
     return m;
+  }
+}
+
+typedef Message MessageFactory(Map<String, Object> map);
+
+class SystemMessageParser {
+  static final Map<String, MessageFactory> _messageFactories = {
+    "log": (m) => new LogMessage.fromMap(m),
+    "create": (m) => new CreateMessage.fromMap(m),
+    "created": (m) => new CreatedMessage.fromMap(m),
+    "clientId": (m) => new ClientIdMessage.fromMap(m),
+    "open": (m) => new OpenMessage.fromMap(m),
+    "close": (m) => new CloseMessage.fromMap(m),
+    "snapshot": (m) => new SnapshotMessage.fromMap(m),
+  };
+
+  /**
+   * Parses [json] and returns the correct subtype of [Message].
+   *
+   * In order for parse() to return the correct Message subtype a factory
+   * function must be registered.
+   */
+  static Message parse(Map json) {
+    String type = json['type'];
+    var factory = _messageFactories[type];
+    if (factory != null) {
+      return factory(json);
+    }
+    return null;
   }
 }

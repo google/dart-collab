@@ -18,6 +18,7 @@ part of collab;
 abstract class DocumentType {
   String get id;
   Document create(String id);
+  Message parseMessage(Map json);
   Operation transform(Operation op, Operation by);
 }
 

@@ -53,8 +53,12 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.stream.transform(MSG_TRANSFORMER).listen(
-        (message) {
+    _connection.stream.transform(JSON_TO_MAP).listen(
+        (json) {
+          Message message = SystemMessageParser.parse(json);
+          if (message == null) {
+            message = _document.type.parseMessage(json);
+          }
           _dispatch(message);
         },
         onError: (error) {

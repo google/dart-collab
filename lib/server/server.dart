@@ -47,8 +47,15 @@ class CollabServer {
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
-    connection.stream.transform(MSG_TRANSFORMER).listen((Message msg) {
-      _enqueue(msg);
+    connection.stream.transform(JSON_TO_MAP).listen((json) {
+      var message = SystemMessageParser.parse(json);
+      if (message == null) {
+        Document doc = _documents[json['docId']];
+        if (doc != null) {
+          message = doc.type.parseMessage(json);
+        }
+      }
+      _enqueue(message);
     },
     onDone: () {
       print("closed: $clientId");
