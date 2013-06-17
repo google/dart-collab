@@ -22,6 +22,24 @@ class TextDocumentType extends DocumentType {
   TextDocument create(String id) {
     return new TextDocument(id);
   }
+
+  Operation transform(Operation op, Operation by) {
+    if ((op.type == "text") && (by.type == "text")) {
+      return _transformInsert(op, by);
+    }
+    return op;
+  }
+
+  static TextOperation _transformInsert(TextOperation op, TextOperation by) {
+    int newPosition = (by.position < op.position)
+        ? op.position + (by.inserted.length - by.deleted.length)
+        : op.position;
+    // should docVersion be updated?
+    // should [by] have to have a sequence number?
+    // A: yes, and it should be less than op.docVersion
+    return new TextOperation(op.senderId, op.docId, op.docVersion, newPosition,
+        op.deleted, op.inserted);
+  }
 }
 
 /*
@@ -96,16 +114,5 @@ class TextOperation extends Operation {
 
   void apply(TextDocument document) {
     document.modify(position, deleted, inserted);
-  }
-
-  static TextOperation transformInsert(TextOperation op, TextOperation by) {
-    int newPosition = (by.position < op.position)
-        ? op.position + (by.inserted.length - by.deleted.length)
-        : op.position;
-    // should docVersion be updated?
-    // should [by] have to have a sequence number?
-    // A: yes, and it should be less than op.docVersion
-    return new TextOperation(op.senderId, op.docId, op.docVersion, newPosition,
-        op.deleted, op.inserted);
   }
 }

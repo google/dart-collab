@@ -14,43 +14,19 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+typedef Operation TransformFunc(Operation op1, Operation op2);
 
-typedef Operation Transform(Operation op1, Operation op2);
+class Transform {
+  final Operation op1;
+  final Operation op2;
+  final TransformFunc transform;
+  Transform(this.op1, this.op2, this.transform);
+}
 
 /*
  * Operations modify a document.
  */
 abstract class Operation extends Message {
-
-  static Map<String, Map<String, Transform>> _getTransforms() => {
-    "text": {"text": TextOperation.transformInsert},
-  };
-
-  /*
-   * Transform [Operation] [op] by [by].
-   *
-   * It's important that these sequences of operation result in the same
-   * changes:
-   *
-   * op1.apply(doc);
-   * var op2t = Operation.transform(op2, op1);
-   * op2t.apply(doc);
-   *
-   * op2.apply(doc);
-   * var op1t = Operation.transform(op1, op2);
-   * op1t.apply(doc);
-   */
-  static Operation transform(Operation op, Operation by) {
-    if (_getTransforms()[op.type] == null) {
-      return op;
-    }
-    Transform t = _getTransforms()[op.type][by.type];
-    if (t == null) {
-      return op;
-    }
-    return t(op, by);
-  }
-
   final String docId;
   // set when op created to the doc version of the client updated when
   // operations from this client that are ahead of this op are applied

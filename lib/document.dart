@@ -18,6 +18,7 @@ part of collab;
 abstract class DocumentType {
   String get id;
   Document create(String id);
+  Operation transform(Operation op, Operation by);
 }
 
 class DocumentChangeEvent {

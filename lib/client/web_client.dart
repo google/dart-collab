@@ -110,7 +110,7 @@ class CollabWebClient {
         List toRemove = [];
         _incoming.forEach((Operation i) {
           if (i.sequence < op.sequence) {
-            var it = Operation.transform(i, _pending);
+            var it = _document.type.transform(i, _pending);
             _apply(it);
             toRemove.add(it);
           }
