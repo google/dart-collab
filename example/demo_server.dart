@@ -26,7 +26,7 @@ void main() {
   host = (host == null) ? "127.0.0.1" : host;
 
   var collabServer = new CollabServer();
-  collabServer.registerDocumentType("text", TextDocument.factory);
+  collabServer.registerDocumentType("text", new TextDocumentType());
   StreamController sc = new StreamController();
   sc.stream.transform(new WebSocketTransformer()).listen((WebSocket ws) {
     var connection = new WebSocketConnection(ws);

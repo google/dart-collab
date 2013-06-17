@@ -14,20 +14,30 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+class TextDocumentType extends DocumentType {
+  static final TextDocumentType _INSTANCE = new TextDocumentType();
+
+  String get id => "text";
+
+  TextDocument create(String id) {
+    return new TextDocument(id);
+  }
+}
+
 /*
  * A simple text-based document.
  */
 class TextDocument extends Document {
-  static TextDocument factory(String id) => new TextDocument(id);
-
   String _content;
 
   TextDocument(String id)
     : this._content = "",
-      super(id, "text");
+      super(id);
 
   TextDocument.fromString(String id, String this._content)
-    : super(id, "text");
+    : super(id);
+
+  DocumentType get type => TextDocumentType._INSTANCE;
 
   void modify(int pos, String del, String ins) {
     if ((pos < 0) || (pos > _content.length)) {

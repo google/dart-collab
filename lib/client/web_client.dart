@@ -174,8 +174,9 @@ class CollabWebClient {
     _clientId = message.clientId;
     print("clientId: $_clientId");
     // once we have a clientId, open a test doc
-    OpenMessage cm = new OpenMessage(_document.id, _document.type, _clientId);
-    send(cm);
+    OpenMessage om =
+        new OpenMessage(_document.id, _document.type.id, _clientId);
+    send(om);
     _onStatusChange(CONNECTED);
   }
 

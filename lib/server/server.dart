@@ -28,8 +28,8 @@ part 'connection.dart';
 class CollabServer {
   // clientId -> connection
   final Map<String, Connection> _connections;
-  // docType -> DocumentFactory
-  final Map<String, DocumentFactory> _factories;
+  // docTypeId -> DocumentType
+  final Map<String, DocumentType> _docTypes;
   // docId -> document
   final Map<String, Document> _documents;
   // docId -> clientId
@@ -38,7 +38,7 @@ class CollabServer {
 
   CollabServer()
     : _connections = new Map<String, Connection>(),
-      _factories = new Map<String, DocumentFactory>(),
+      _docTypes = new Map<String, DocumentType>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
       _queue = new Queue<Message>() {
@@ -62,8 +62,8 @@ class CollabServer {
     connection.add(message.json);
   }
 
-  void registerDocumentType(String docType, DocumentFactory factory) {
-    _factories[docType] = factory;
+  void registerDocumentType(String docTypeId, DocumentType docType) {
+    _docTypes[docTypeId] = docType;
   }
 
   void _enqueue(Message message) {
@@ -175,12 +175,12 @@ class CollabServer {
 
   void create(String clientId, CreateMessage message) {
     var d = _create(randomId(), message.docType);
-    CreatedMessage m = new CreatedMessage(d.id, d.type, message.id);
+    CreatedMessage m = new CreatedMessage(d.id, d.type.id, message.id);
     _send(clientId, m);
   }
 
-  Document _create(String docId, String docType) {
-    Document d = _factories[docType](docId);
+  Document _create(String docId, String docTypeId) {
+    Document d = _docTypes[docTypeId].create(docId);
     _documents[d.id] = d;
     return d;
   }

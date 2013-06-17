@@ -15,7 +15,10 @@ part of collab;
 //  limitations under the License.
 
 
-typedef Document DocumentFactory(String id);
+abstract class DocumentType {
+  String get id;
+  Document create(String id);
+}
 
 class DocumentChangeEvent {
   final Document document;
@@ -26,17 +29,18 @@ class DocumentChangeEvent {
 typedef void DocumentChangeHandler(DocumentChangeEvent e);
 
 abstract class Document {
-  final String type;
   final String id;
   int version;
   final List<Operation> log;
   final List<DocumentChangeHandler> _handlers;
 
-  Document(String this.id, String this.type)
+  Document(String this.id)
     : version = 0,
       log = new List<Operation>(),
       _handlers = new List<DocumentChangeHandler>() {
   }
+
+  DocumentType get type;
 
   void addChangeHandler(DocumentChangeHandler handler) {
     assert(handler != null);
