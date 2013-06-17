@@ -14,15 +14,6 @@ part of collab;
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-typedef Operation TransformFunc(Operation op1, Operation op2);
-
-class Transform {
-  final Operation op1;
-  final Operation op2;
-  final TransformFunc transform;
-  Transform(this.op1, this.op2, this.transform);
-}
-
 /*
  * Operations modify a document.
  */
