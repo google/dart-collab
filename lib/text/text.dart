@@ -1,5 +1,3 @@
-part of collab;
-
 //  Copyright 2011 Google Inc. All Rights Reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +11,11 @@ part of collab;
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+
+library text;
+
+import 'package:collab/collab.dart';
+import 'package:collab/utils.dart';
 
 class TextDocumentType extends DocumentType {
   static final TextDocumentType _INSTANCE = new TextDocumentType();

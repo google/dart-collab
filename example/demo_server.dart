@@ -18,6 +18,7 @@ import 'dart:isolate';
 
 import 'package:collab/collab.dart';
 import 'package:collab/server/server.dart';
+import 'package:collab/text/text.dart';
 import 'package:collab/utils.dart';
 
 void main() {
