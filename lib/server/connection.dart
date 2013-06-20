@@ -32,7 +32,8 @@ class WebSocketConnection implements Connection {
 
   Stream<Message> get stream => _jsonToMessage.bind(_socket);
   void add(Message message) => _socket.add(message.json);
-  void addStream(Stream<Message> stream) =>
-      _socket.addStream(_messageToJson.bind(stream));
-  void close() => _socket.close();
+  void addStream(Stream<Message> stream) {
+    _socket.addStream(_messageToJson.bind(stream));
+  }
+  void close() { _socket.close(); }
 }
