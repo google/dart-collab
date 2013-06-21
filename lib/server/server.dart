@@ -68,8 +68,8 @@ class CollabServer {
     connection.add(message.json);
   }
 
-  void registerDocumentType(String docTypeId, DocumentType docType) {
-    _docTypes[docTypeId] = docType;
+  void registerDocumentType(DocumentType docType) {
+    _docTypes[docType.id] = docType;
     _messageFactories.addAll(docType.messageFactories);
     _transforms.addAll(docType.transforms);
   }
