@@ -39,3 +39,11 @@ abstract class Operation extends Message {
 
   void apply(Document document);
 }
+
+class TransformType {
+  final String op1Type;
+  final String op2Type;
+  TransformType(this.op1Type, this.op2Type);
+}
+
+typedef Transform(Operation op1, Operation op2);

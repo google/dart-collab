@@ -30,6 +30,9 @@ class CollabServer {
   final Map<String, Connection> _connections;
   // docTypeId -> DocumentType
   final Map<String, DocumentType> _docTypes;
+  // messageType -> MessageFactory
+  final Map<String, MessageFactory> _messageFactories;
+  final Map<TransformType, Transform> _transforms;
   // docId -> document
   final Map<String, Document> _documents;
   // docId -> clientId
@@ -39,22 +42,20 @@ class CollabServer {
   CollabServer()
     : _connections = new Map<String, Connection>(),
       _docTypes = new Map<String, DocumentType>(),
+      _messageFactories = new Map<String, MessageFactory>(),
+      _transforms = new Map<TransformType, Transform>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
       _queue = new Queue<Message>() {
+    _messageFactories.addAll(SystemMessageFactories.messageFactories);
   }
 
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
     connection.stream.transform(JSON_TO_MAP).listen((json) {
-      var message = SystemMessageParser.parse(json);
-      if (message == null) {
-        Document doc = _documents[json['docId']];
-        if (doc != null) {
-          message = doc.type.parseMessage(json);
-        }
-      }
+      var factory = _messageFactories[json['type']];
+      var message = factory(json);
       _enqueue(message);
     },
     onDone: () {
@@ -71,6 +72,8 @@ class CollabServer {
 
   void registerDocumentType(String docTypeId, DocumentType docType) {
     _docTypes[docTypeId] = docType;
+    _messageFactories.addAll(docType.messageFactories);
+    _transforms.addAll(docType.transforms);
   }
 
   void _enqueue(Message message) {
@@ -128,7 +131,9 @@ class CollabServer {
     for (int i = doc.log.length - 1; i >= 0; i--) {
       Operation appliedOp = doc.log[i];
       if (appliedOp.sequence > op.docVersion) {
-        transformed = doc.type.transform(transformed, appliedOp);
+        Transform t =
+            _transforms[new TransformType(transformed.type, appliedOp.type)];
+        transformed = (t == null) ? transformed : t(transformed, appliedOp);
       }
     }
     doc.version++;

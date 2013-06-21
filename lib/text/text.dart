@@ -26,19 +26,15 @@ class TextDocumentType extends DocumentType {
     return new TextDocument(id);
   }
 
-  Message parseMessage(Map json) {
-    String type = json['type'];
-    if (type == "text") {
-      return new TextOperation.fromMap(json);
-    }
-    return null;
-  }
+  Map<String, MessageFactory> get messageFactories => {
+    "text": (m) => new TextOperation.fromMap(m)
+  };
 
-  Operation transform(Operation op, Operation by) {
-    if ((op.type == "text") && (by.type == "text")) {
-      return _transformInsert(op, by);
-    }
-    return op;
+  Map<TransformType, Transform> get transforms {
+    var transforms = new Map();
+    transforms[new TransformType("text", "text")] =
+        (op1, op2) => _transformInsert(op1, op2);
+    return transforms;
   }
 
   static TextOperation _transformInsert(TextOperation op, TextOperation by) {

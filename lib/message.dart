@@ -79,8 +79,8 @@ class Message {
 
 typedef Message MessageFactory(Map<String, Object> map);
 
-class SystemMessageParser {
-  static final Map<String, MessageFactory> _messageFactories = {
+class SystemMessageFactories {
+  static Map<String, MessageFactory> messageFactories = {
     "log": (m) => new LogMessage.fromMap(m),
     "create": (m) => new CreateMessage.fromMap(m),
     "created": (m) => new CreatedMessage.fromMap(m),
@@ -89,19 +89,4 @@ class SystemMessageParser {
     "close": (m) => new CloseMessage.fromMap(m),
     "snapshot": (m) => new SnapshotMessage.fromMap(m),
   };
-
-  /**
-   * Parses [json] and returns the correct subtype of [Message].
-   *
-   * In order for parse() to return the correct Message subtype a factory
-   * function must be registered.
-   */
-  static Message parse(Map json) {
-    String type = json['type'];
-    var factory = _messageFactories[type];
-    if (factory != null) {
-      return factory(json);
-    }
-    return null;
-  }
 }

@@ -29,6 +29,8 @@ const int ERROR = 3;
 class CollabWebClient {
   String _clientId;
   Document _document;
+  Map<String, MessageFactory> _messageFactories;
+  Map<TransformType, Transform> _transforms;
   Map<String, Completer> _pendingRequests; // might not be necessary anymore
   List<StatusHandler> _statusHandlers;
 
@@ -46,6 +48,11 @@ class CollabWebClient {
   final Connection _connection;
 
   CollabWebClient(Connection this._connection, Document this._document) {
+    _messageFactories = new Map<String, MessageFactory>();
+    _messageFactories.addAll(_document.type.messageFactories);
+    _messageFactories.addAll(SystemMessageFactories.messageFactories);
+    _transforms = new Map<TransformType, Transform>();
+    _transforms.addAll(_document.type.transforms);
     _pendingRequests = new Map<String, Completer>();
     _queue = new List<Operation>();
     _incoming = new List<Operation>();
@@ -55,10 +62,8 @@ class CollabWebClient {
 
     _connection.stream.transform(JSON_TO_MAP).listen(
         (json) {
-          Message message = SystemMessageParser.parse(json);
-          if (message == null) {
-            message = _document.type.parseMessage(json);
-          }
+          var factory = _messageFactories[json['type']];
+          Message message = factory(json);
           _dispatch(message);
         },
         onError: (error) {
@@ -114,7 +119,9 @@ class CollabWebClient {
         List toRemove = [];
         _incoming.forEach((Operation i) {
           if (i.sequence < op.sequence) {
-            var it = _document.type.transform(i, _pending);
+            var transform =
+                _transforms[new TransformType(i.type, _pending.type)];
+            var it = (transform == null) ? i : transform(i, _pending);
             _apply(it);
             toRemove.add(it);
           }
