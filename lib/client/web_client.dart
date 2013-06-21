@@ -58,20 +58,19 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.stream.transform(JSON_TO_MAP).listen(
-        (json) {
-          var factory = _messageFactories[json['type']];
-          Message message = factory(json);
-          _dispatch(message);
-        },
-        onError: (error) {
-          _onStatusChange(ERROR);
-          print("error: $error");
-        },
-        onDone: () {
-          _onStatusChange(DISCONNECTED);
-          print("closed");
-        });
+    _connection.stream.transform(JSON_TO_MAP).listen((json) {
+        var factory = _messageFactories[json['type']];
+        Message message = factory(json);
+        _dispatch(message);
+      },
+      onError: (error) {
+        _onStatusChange(ERROR);
+        print("error: $error");
+      },
+      onDone: () {
+        _onStatusChange(DISCONNECTED);
+        print("closed");
+      });
   }
 
   Document get document => _document;
