@@ -17,6 +17,7 @@ library web_utils;
 import 'dart:html';
 import 'dart:math';
 import 'package:collab/collab.dart' as collab;
+import 'package:collab/text/text.dart' as text;
 import 'web_client.dart';
 
 class TextChangeEvent {
@@ -111,7 +112,7 @@ void makeEditable(Element element, CollabWebClient client) {
     print(event);
     if (listen) {
       listen = false;
-      collab.TextOperation op = new collab.TextOperation(client.id, "test",
+      text.TextOperation op = new text.TextOperation(client.id, "test",
           client.docVersion, event.position, event.deleted, event.inserted);
       client.queue(op);
       listen = true;
@@ -119,7 +120,7 @@ void makeEditable(Element element, CollabWebClient client) {
   });
 
   client.document.addChangeHandler((collab.DocumentChangeEvent event) {
-    if (listen) {
+    if (listen && event is text.TextChangeEvent) {
       listen = false;
       int cursorPos = (element as dynamic).selectionStart;
       (element as dynamic).value = event.text;

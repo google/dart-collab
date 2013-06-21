@@ -18,6 +18,7 @@ import 'dart:isolate';
 
 import 'package:collab/collab.dart';
 import 'package:collab/server/server.dart';
+import 'package:collab/text/text.dart';
 import 'package:collab/utils.dart';
 
 void main() {
@@ -26,6 +27,7 @@ void main() {
   host = (host == null) ? "127.0.0.1" : host;
 
   var collabServer = new CollabServer();
+  collabServer.registerDocumentType(new TextDocumentType());
   StreamController sc = new StreamController();
   sc.stream.transform(new WebSocketTransformer()).listen((WebSocket ws) {
     var connection = new WebSocketConnection(ws);

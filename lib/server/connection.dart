@@ -15,25 +15,12 @@ part of server;
 //  limitations under the License.
 
 class WebSocketConnection implements Connection {
-  static final StreamTransformer<dynamic, Message> _jsonToMessage =
-      new StreamTransformer(handleData: (value, sink) {
-        var message = new Message.parse(value);
-        sink.add(message);
-      });
-
-  static final StreamTransformer<Message, String> _messageToJson =
-      new StreamTransformer(handleData: (value, sink) {
-        sink.add(value.json);
-      });
-
   final WebSocket _socket;
 
   WebSocketConnection(WebSocket this._socket);
 
-  Stream<Message> get stream => _jsonToMessage.bind(_socket);
-  void add(Message message) => _socket.add(message.json);
-  void addStream(Stream<Message> stream) {
-    _socket.addStream(_messageToJson.bind(stream));
-  }
+  Stream get stream => _socket;
+  void add(String json) => _socket.add(json);
+  void addStream(Stream<String> stream) { _socket.addStream(stream); }
   void close() { _socket.close(); }
 }

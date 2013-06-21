@@ -18,8 +18,7 @@ class WebSocketConnection implements Connection {
   static final _msgTransformer =
       new StreamTransformer(handleData: (value, sink) {
         if (value is html.MessageEvent) {
-          var message = new Message.parse(value.data);
-          sink.add(message);
+          sink.add(value.data);
         }
       });
 
@@ -28,11 +27,9 @@ class WebSocketConnection implements Connection {
   WebSocketConnection(html.WebSocket this._socket);
 
   Stream<Message> get stream => _msgTransformer.bind(_socket.onMessage);
-  void add(Message message) => _socket.send(message.json);
-  void addStream(Stream<Message> stream) {
-    stream.listen((Message msg) {
-      _socket.send(msg.json);
-    });
+  void add(String message) => _socket.send(message);
+  void addStream(Stream<String> stream) {
+    stream.listen((msg) => _socket.send(msg));
   }
   void close() => _socket.close();
 }

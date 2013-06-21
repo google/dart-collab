@@ -18,6 +18,7 @@ import 'dart:html';
 import 'package:collab/client/web_client.dart';
 import 'package:collab/client/web_utils.dart';
 import 'package:collab/collab.dart' as collab;
+import 'package:collab/text/text.dart';
 
 TextAreaElement editor;
 collab.Document doc;
@@ -27,7 +28,7 @@ void main() {
   print("dart-collab demo");
   editor = query('#editor');
   statusDiv = query('#status');
-  doc = new collab.Document("test");
+  doc = new TextDocument("test");
   String host = window.location.hostname;
   print("host: $host");
 

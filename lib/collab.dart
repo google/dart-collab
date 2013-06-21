@@ -24,4 +24,3 @@ part 'message.dart';
 part 'messages.dart';
 part 'document.dart';
 part 'operation.dart';
-part 'text.dart';

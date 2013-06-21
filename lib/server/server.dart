@@ -18,6 +18,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:json' as JSON;
 
 import 'package:collab/collab.dart';
 import 'package:collab/utils.dart';
@@ -27,6 +28,11 @@ part 'connection.dart';
 class CollabServer {
   // clientId -> connection
   final Map<String, Connection> _connections;
+  // docTypeId -> DocumentType
+  final Map<String, DocumentType> _docTypes;
+  // messageType -> MessageFactory
+  final Map<String, MessageFactory> _messageFactories;
+  final Map<String, Map<String, Transform>> _transforms;
   // docId -> document
   final Map<String, Document> _documents;
   // docId -> clientId
@@ -35,15 +41,19 @@ class CollabServer {
 
   CollabServer()
     : _connections = new Map<String, Connection>(),
+      _docTypes = new Map<String, DocumentType>(),
+      _messageFactories = new Map.from(SystemMessageFactories.messageFactories),
+      _transforms = new Map<String, Map<String, Transform>>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
-      _queue = new Queue<Message>() {
-  }
+      _queue = new Queue<Message>();
 
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
-    connection.stream.listen((Message message) {
+    connection.stream.transform(jsonToMap).listen((json) {
+      var factory = _messageFactories[json['type']];
+      var message = factory(json);
       _enqueue(message);
     },
     onDone: () {
@@ -55,7 +65,13 @@ class CollabServer {
       _removeConnection(clientId);
     });
     ClientIdMessage message = new ClientIdMessage(SERVER_ID, clientId);
-    connection.add(message);
+    connection.add(message.json);
+  }
+
+  void registerDocumentType(DocumentType docType) {
+    _docTypes[docType.id] = docType;
+    _messageFactories.addAll(docType.messageFactories);
+    _transforms.addAll(docType.transforms);
   }
 
   void _enqueue(Message message) {
@@ -86,7 +102,7 @@ class CollabServer {
         break;
       case "open":
         OpenMessage m = message;
-        _open(clientId, m.docId);
+        _open(clientId, m.docId, m.docType);
         break;
       case "close":
         CloseMessage m = message;
@@ -113,12 +129,12 @@ class CollabServer {
     for (int i = doc.log.length - 1; i >= 0; i--) {
       Operation appliedOp = doc.log[i];
       if (appliedOp.sequence > op.docVersion) {
-        transformed = Operation.transform(transformed, appliedOp);
+        Transform t = _transforms[transformed.type][appliedOp.type];
+        transformed = (t == null) ? transformed : t(transformed, appliedOp);
       }
     }
     doc.version++;
     transformed.sequence = doc.version;
-
     transformed.apply(doc);
     doc.log.add(transformed);
     _broadcast(transformed);
@@ -142,12 +158,12 @@ class CollabServer {
       _connections.remove(clientId);
       return;
     }
-    connection.add(message);
+    connection.add(message.json);
   }
 
-  void _open(String clientId, String docId) {
+  void _open(String clientId, String docId, String docType) {
     if (_documents[docId] == null) {
-      _create(docId);
+      _create(docId, docType);
     }
     _addListener(clientId, docId);
   }
@@ -156,7 +172,8 @@ class CollabServer {
     _listeners.putIfAbsent(docId, () => new Set<String>());
     _listeners[docId].add(clientId);
     Document d = _documents[docId];
-    SnapshotMessage m = new SnapshotMessage(SERVER_ID, docId, d.text, d.version);
+    Message m =
+        new SnapshotMessage(SERVER_ID, docId, d.version, d.serialize());
     _send(clientId, m);
   }
 
@@ -166,13 +183,13 @@ class CollabServer {
   }
 
   void create(String clientId, CreateMessage message) {
-    var d = _create(randomId());
-    CreatedMessage m = new CreatedMessage(d.id, message.id);
+    var d = _create(randomId(), message.docType);
+    CreatedMessage m = new CreatedMessage(d.id, d.type.id, message.id);
     _send(clientId, m);
   }
 
-  Document _create(String docId) {
-    Document d = new Document(docId);
+  Document _create(String docId, String docTypeId) {
+    Document d = _docTypes[docTypeId].create(docId);
     _documents[d.id] = d;
     return d;
   }

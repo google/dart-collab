@@ -29,6 +29,8 @@ const int ERROR = 3;
 class CollabWebClient {
   String _clientId;
   Document _document;
+  Map<String, MessageFactory> _messageFactories;
+  Map<String, Map<String, Transform>> _transforms;
   Map<String, Completer> _pendingRequests; // might not be necessary anymore
   List<StatusHandler> _statusHandlers;
 
@@ -46,6 +48,9 @@ class CollabWebClient {
   final Connection _connection;
 
   CollabWebClient(Connection this._connection, Document this._document) {
+    _messageFactories = new Map.from(_document.type.messageFactories);
+    _messageFactories.addAll(SystemMessageFactories.messageFactories);
+    _transforms = new Map.from(_document.type.transforms);
     _pendingRequests = new Map<String, Completer>();
     _queue = new List<Operation>();
     _incoming = new List<Operation>();
@@ -53,18 +58,19 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.stream.listen(
-        (message) {
-          _dispatch(message);
-        },
-        onError: (error) {
-          _onStatusChange(ERROR);
-          print("error: $error");
-        },
-        onDone: () {
-          _onStatusChange(DISCONNECTED);
-          print("closed");
-        });
+    _connection.stream.transform(jsonToMap).listen((json) {
+        var factory = _messageFactories[json['type']];
+        Message message = factory(json);
+        _dispatch(message);
+      },
+      onError: (error) {
+        _onStatusChange(ERROR);
+        print("error: $error");
+      },
+      onDone: () {
+        _onStatusChange(DISCONNECTED);
+        print("closed");
+      });
   }
 
   Document get document => _document;
@@ -86,7 +92,7 @@ class CollabWebClient {
   }
 
   void send(Message message) {
-    _connection.add(message);
+    _connection.add(message.json);
   }
 
   void addStatusHandler(StatusHandler h) {
@@ -110,7 +116,8 @@ class CollabWebClient {
         List toRemove = [];
         _incoming.forEach((Operation i) {
           if (i.sequence < op.sequence) {
-            var it = Operation.transform(i, _pending);
+            var transform = _transforms[i.type][_pending.type];
+            var it = (transform == null) ? i : transform(i, _pending);
             _apply(it);
             toRemove.add(it);
           }
@@ -174,13 +181,14 @@ class CollabWebClient {
     _clientId = message.clientId;
     print("clientId: $_clientId");
     // once we have a clientId, open a test doc
-    OpenMessage cm = new OpenMessage(_document.id, _clientId);
-    send(cm);
+    OpenMessage om =
+        new OpenMessage(_document.id, _document.type.id, _clientId);
+    send(om);
     _onStatusChange(CONNECTED);
   }
 
   void _onSnapshot(SnapshotMessage message) {
-    _document.modify(0, document.text, message.text);
+    _document.deserialize(message.content);
     _document.version = message.version;
   }
 }
