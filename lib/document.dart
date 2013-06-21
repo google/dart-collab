@@ -19,7 +19,7 @@ abstract class DocumentType {
   String get id;
   Document create(String id);
   Map<String, MessageFactory> get messageFactories;
-  Map<TransformType, Transform> get transforms;
+  Map<String, Map<String, Transform>> get transforms;
 }
 
 class DocumentChangeEvent {

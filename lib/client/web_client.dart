@@ -30,7 +30,7 @@ class CollabWebClient {
   String _clientId;
   Document _document;
   Map<String, MessageFactory> _messageFactories;
-  Map<TransformType, Transform> _transforms;
+  Map<String, Map<String, Transform>> _transforms;
   Map<String, Completer> _pendingRequests; // might not be necessary anymore
   List<StatusHandler> _statusHandlers;
 
@@ -48,11 +48,9 @@ class CollabWebClient {
   final Connection _connection;
 
   CollabWebClient(Connection this._connection, Document this._document) {
-    _messageFactories = new Map<String, MessageFactory>();
-    _messageFactories.addAll(_document.type.messageFactories);
+    _messageFactories = new Map.from(_document.type.messageFactories);
     _messageFactories.addAll(SystemMessageFactories.messageFactories);
-    _transforms = new Map<TransformType, Transform>();
-    _transforms.addAll(_document.type.transforms);
+    _transforms = new Map.from(_document.type.transforms);
     _pendingRequests = new Map<String, Completer>();
     _queue = new List<Operation>();
     _incoming = new List<Operation>();
@@ -119,8 +117,7 @@ class CollabWebClient {
         List toRemove = [];
         _incoming.forEach((Operation i) {
           if (i.sequence < op.sequence) {
-            var transform =
-                _transforms[new TransformType(i.type, _pending.type)];
+            var transform = _transforms[i.type][_pending.type];
             var it = (transform == null) ? i : transform(i, _pending);
             _apply(it);
             toRemove.add(it);

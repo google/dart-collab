@@ -32,7 +32,7 @@ class CollabServer {
   final Map<String, DocumentType> _docTypes;
   // messageType -> MessageFactory
   final Map<String, MessageFactory> _messageFactories;
-  final Map<TransformType, Transform> _transforms;
+  final Map<String, Map<String, Transform>> _transforms;
   // docId -> document
   final Map<String, Document> _documents;
   // docId -> clientId
@@ -42,13 +42,11 @@ class CollabServer {
   CollabServer()
     : _connections = new Map<String, Connection>(),
       _docTypes = new Map<String, DocumentType>(),
-      _messageFactories = new Map<String, MessageFactory>(),
-      _transforms = new Map<TransformType, Transform>(),
+      _messageFactories = new Map.from(SystemMessageFactories.messageFactories),
+      _transforms = new Map<String, Map<String, Transform>>(),
       _documents = new Map<String, Document>(),
       _listeners = new Map<String, Set<String>>(),
-      _queue = new Queue<Message>() {
-    _messageFactories.addAll(SystemMessageFactories.messageFactories);
-  }
+      _queue = new Queue<Message>();
 
   void addConnection(Connection connection) {
     String clientId = randomId();
@@ -131,8 +129,7 @@ class CollabServer {
     for (int i = doc.log.length - 1; i >= 0; i--) {
       Operation appliedOp = doc.log[i];
       if (appliedOp.sequence > op.docVersion) {
-        Transform t =
-            _transforms[new TransformType(transformed.type, appliedOp.type)];
+        Transform t = _transforms[transformed.type][appliedOp.type];
         transformed = (t == null) ? transformed : t(transformed, appliedOp);
       }
     }

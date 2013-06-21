@@ -30,12 +30,9 @@ class TextDocumentType extends DocumentType {
     "text": (m) => new TextOperation.fromMap(m)
   };
 
-  Map<TransformType, Transform> get transforms {
-    var transforms = new Map();
-    transforms[new TransformType("text", "text")] =
-        (op1, op2) => _transformInsert(op1, op2);
-    return transforms;
-  }
+  Map<String, Map<String, Transform>> get transforms => {
+    "text" : { "text": (op1, op2) => _transformInsert(op1, op2) }
+  };
 
   static TextOperation _transformInsert(TextOperation op, TextOperation by) {
     int newPosition = (by.position < op.position)
