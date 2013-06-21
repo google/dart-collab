@@ -28,8 +28,8 @@ class WebSocketConnection implements Connection {
 
   Stream<Message> get stream => _msgTransformer.bind(_socket.onMessage);
   void add(String message) => _socket.send(message);
-  void addStream(Stream<String> stream) => stream.listen((msg) {
-    _socket.send(msg);
-  });
+  void addStream(Stream<String> stream) {
+    stream.listen((msg) => _socket.send(msg));
+  }
   void close() => _socket.close();
 }

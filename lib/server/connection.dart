@@ -21,6 +21,6 @@ class WebSocketConnection implements Connection {
 
   Stream get stream => _socket;
   void add(String json) => _socket.add(json);
-  void addStream(Stream<String> stream) => _socket.addStream(stream);
-  void close() => _socket.close();
+  void addStream(Stream<String> stream) { _socket.addStream(stream); }
+  void close() { _socket.close(); }
 }
