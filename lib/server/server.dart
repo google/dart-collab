@@ -51,7 +51,7 @@ class CollabServer {
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
-    connection.stream.transform(JSON_TO_MAP).listen((json) {
+    connection.stream.transform(jsonToMap).listen((json) {
       var factory = _messageFactories[json['type']];
       var message = factory(json);
       _enqueue(message);

@@ -24,7 +24,7 @@ String SERVER_ID = "_server";
 /**
  * Deserialize JSON messages to [Map]s.
  */
-final StreamTransformer<dynamic, Map> JSON_TO_MAP =
+final StreamTransformer<dynamic, Map> jsonToMap =
     new StreamTransformer(handleData: (value, sink) {
       var json = JSON.parse(value);
       if (json is! Map) {

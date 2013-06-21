@@ -58,7 +58,7 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.stream.transform(JSON_TO_MAP).listen((json) {
+    _connection.stream.transform(jsonToMap).listen((json) {
         var factory = _messageFactories[json['type']];
         Message message = factory(json);
         _dispatch(message);
