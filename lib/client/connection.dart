@@ -15,18 +15,13 @@ part of web_client;
 //  limitations under the License.
 
 class WebSocketConnection implements Connection {
-  static final _msgTransformer =
-      new StreamTransformer(handleData: (value, sink) {
-        if (value is html.MessageEvent) {
-          sink.add(value.data);
-        }
-      });
-
   final html.WebSocket _socket;
 
   WebSocketConnection(html.WebSocket this._socket);
 
-  Stream<Message> get stream => _msgTransformer.bind(_socket.onMessage);
+  Stream<Message> get stream => _socket.onMessage
+      .where((msg) => msg is html.MessageEvent)
+      .map((msg) => msg.data);
   void add(String message) => _socket.send(message);
   void addStream(Stream<String> stream) {
     stream.listen((msg) => _socket.send(msg));
