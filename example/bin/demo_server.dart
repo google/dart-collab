@@ -14,12 +14,9 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 
-import 'package:collab/collab.dart';
 import 'package:collab/server/server.dart';
 import 'package:collab/text/text.dart';
-import 'package:collab/utils.dart';
 
 void main(List<String> argv) {
   String host = getHost(argv);
@@ -51,6 +48,7 @@ String getHost(List<String> argv) {
       return argv[i+1];
     }
   }
+  return null;
 }
 
 Map<String, String> contentTypes = const {

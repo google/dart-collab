@@ -17,7 +17,6 @@ library collab;
 import 'dart:async';
 import 'dart:convert' show JSON;
 import 'utils.dart';
-import 'package:logging/logging.dart';
 
 part 'connection.dart';
 part 'message.dart';

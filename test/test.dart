@@ -12,24 +12,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-import 'package:unittest/unittest.dart';
-import 'package:unittest/mock.dart';
-import 'package:collab/collab.dart';
-import 'package:collab/server/server.dart';
-
-// TODO: Really need a client/server integration test.
-// Need OT scenarios across two clients with simultaneous operations.
+// TODO:
+// Unit tests
+// client/server integration test.
+// OT scenarios across two clients with simultaneous operations.
 main() {
-  test('CollabServer Setup', () {
-    var connection = new MockConnection();
-    connection.when(callsTo('add', anything)).thenCall((message) {
-      print("is ClientIdMessage: ${message is ClientIdMessage}");
-      expect(message, new isInstanceOf<ClientIdMessage>('ClientIdMessage'));
-    });
-
-    var collabServer = new CollabServer();
-    collabServer.addConnection(connection);
-  });
 }
-
-class MockConnection extends Mock implements Connection {}
