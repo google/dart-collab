@@ -26,8 +26,8 @@ Element statusDiv;
 
 void main() {
   print("dart-collab demo");
-  editor = query('#editor');
-  statusDiv = query('#status');
+  editor = querySelector('#editor');
+  statusDiv = querySelector('#status');
   doc = new TextDocument("test");
   String host = window.location.hostname;
   print("host: $host");
