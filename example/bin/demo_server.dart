@@ -21,8 +21,7 @@ import 'package:collab/server/server.dart';
 import 'package:collab/text/text.dart';
 import 'package:collab/utils.dart';
 
-void main() {
-  List<String> argv = (new Options()).arguments;
+void main(List<String> argv) {
   String host = getHost(argv);
   host = (host == null) ? "127.0.0.1" : host;
 

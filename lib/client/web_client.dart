@@ -15,6 +15,7 @@
 library web_client;
 
 import 'dart:async';
+import 'dart:convert' show JSON;
 import 'dart:html' as html;
 import 'package:collab/collab.dart';
 
@@ -58,7 +59,7 @@ class CollabWebClient {
     _statusHandlers = new List<StatusHandler>();
     _onStatusChange(CONNECTING);
 
-    _connection.stream.transform(jsonToMap).listen((json) {
+    _connection.stream.map(JSON.decode).listen((json) {
         var factory = _messageFactories[json['type']];
         Message message = factory(json);
         _dispatch(message);

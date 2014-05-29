@@ -18,7 +18,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:json' as JSON;
+import 'dart:convert' show JSON;
 
 import 'package:collab/collab.dart';
 import 'package:collab/utils.dart';
@@ -51,7 +51,7 @@ class CollabServer {
   void addConnection(Connection connection) {
     String clientId = randomId();
     _connections[clientId] = connection;
-    connection.stream.transform(jsonToMap).listen((json) {
+    connection.stream.map(JSON.decode).listen((json) {
       var factory = _messageFactories[json['type']];
       var message = factory(json);
       _enqueue(message);

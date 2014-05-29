@@ -1,0 +1,8 @@
+name: collab_example
+description: dart-collab demo application
+dependencies:
+  browser: any
+  collab:
+    path: ../
+  unittest: any
+  logging: any

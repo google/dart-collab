@@ -22,19 +22,6 @@ part of collab;
 String SERVER_ID = "_server";
 
 /**
- * Deserialize JSON messages to [Map]s.
- */
-final StreamTransformer<dynamic, Map> jsonToMap =
-    new StreamTransformer(handleData: (value, sink) {
-      var json = JSON.parse(value);
-      if (json is! Map) {
-        sink.addError("Invalid Message: value");
-      } else {
-        sink.add(json);
-      }
-    });
-
-/**
  * Messages are sent between clients and servers.
  */
 class Message {
@@ -57,7 +44,7 @@ class Message {
   /**
    * Returns a JSON representation of the message.
    */
-  String get json => JSON.stringify(toMap());
+  String get json => JSON.encode(toMap());
 
   String toString() => "Message $json";
 
